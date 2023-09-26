@@ -37,7 +37,7 @@ class Chat(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
-    id_creator = Column(Integer, ForeignKey("users.id"))
+    id_creator = Column(Integer, ForeignKey("users.id"), ondelete="")
 
     users = relationship("ChatUser", back_populates="chat")
     messages = relationship("Message", back_populates="chat")

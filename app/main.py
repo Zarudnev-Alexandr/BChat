@@ -1,9 +1,9 @@
 from fastapi import FastAPI
+from src.db import get_password_hash
 
 import src
 
 app = FastAPI()
-
 
 @app.on_event("startup")
 async def db_init_models():

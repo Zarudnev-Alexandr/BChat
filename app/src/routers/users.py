@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
+from src.db import get_password_hash
 
 from src.schemas import AllUsersProfilesMain, UserCreate, UserProfile
 from src.utils import add_user, get_user, get_user_chats, get_users
@@ -38,7 +39,7 @@ async def add_one_user(user: UserCreate, session: AsyncSession = Depends(get_ses
         "surname": user.surname,
         "date_of_birth": user.date_of_birth,
         "email": user.email,
-        "hashed_password": user.hashed_password,
+        "hashed_password": get_password_hash(user.hashed_password),
         "imageURL": user.imageURL,
     }
     userAdd = await add_user(session, **user)
