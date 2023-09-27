@@ -1,13 +1,33 @@
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from src.db import Chat, User
+from src.db import Chat, User, get_password_hash, create_access_token, pwd_context
 
 
 async def get_users(session: AsyncSession) -> list[User]:
     """Get all Users from db"""
     result = await session.execute(select(User))
     return result.scalars().all()
+
+
+async def login_user(session: AsyncSession, **kwargs):
+    """Логин пользовалея"""
+
+    result = await session.execute(select(User).where(User.email == kwargs["email"]))
+    user =  result.scalars().first()
+    if user is None or not pwd_context.verify(kwargs["password"], user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверное имя пользователя или пароль",
+        )
+    user_info = {
+              "id": user.id,
+              "nickname": user.nickname,
+              "email": user.email
+          }
+    access_token = create_access_token(data=user_info)
+    return {"user": user, "access_token": access_token}
 
 
 async def get_user(session: AsyncSession, id: int) -> User:
