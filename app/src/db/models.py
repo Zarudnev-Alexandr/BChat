@@ -6,9 +6,6 @@ import uuid
 from .database import Base
 
 
-# Генерация токена
-def generate_uuid():
-    return str(uuid.uuid4())
 
 
 class User(Base):
@@ -24,7 +21,6 @@ class User(Base):
     is_active = Column(Boolean, default=False)
     is_online = Column(Boolean, default=False, index=True)
     imageURL = Column(String)
-    token = Column(String, unique=True, default=generate_uuid)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
 
     chats = relationship("ChatUser", back_populates="user")
