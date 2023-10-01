@@ -5,9 +5,23 @@ from src.db import get_session
 from src.db import get_password_hash
 
 from src.schemas import AllUsersProfilesMain, UserCreate, UserProfile
-from src.utils import add_user, get_user, get_user_chats, get_users
+from src.utils import add_user, get_user, get_user_chats, get_users, login_user
 
 users_router: APIRouter = APIRouter()
+
+
+@users_router.get('/login')
+async def login (email: str, password: str, session: AsyncSession = Depends(get_session)):
+    """Логин пользователя"""
+    userInfo = {
+      "email": email,
+      "password": password
+    }
+    user = await login_user(session, **userInfo)
+    if user:
+      return user
+    else:
+      return JSONResponse(content={"message": f"Не найдено email - {email} password - {password}"})
 
 
 @users_router.get("/", response_model=list[AllUsersProfilesMain])
@@ -30,9 +44,9 @@ async def get_one_user(id: int, session: AsyncSession = Depends(get_session)):
     )
 
 
-@users_router.post("/add")
+@users_router.post("/register")
 async def add_one_user(user: UserCreate, session: AsyncSession = Depends(get_session)):
-    """Add one User to db"""
+    """Регистрация пользователя"""
     user = {
         "nickname": user.nickname,
         "name": user.name,

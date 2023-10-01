@@ -23,3 +23,9 @@ app.include_router(
     prefix="/api/chats",
     tags=["Chats"]
 )
+
+app.include_router(
+    src.messages_router,
+    prefix="/api/messages",
+    tags=["Messages"]
+)
