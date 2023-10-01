@@ -1,6 +1,8 @@
 package com.example.bchatmobile;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,7 +34,7 @@ public class MainActivity extends Activity {
         Log.i("MyApp", "Это информационное сообщение");
         sendRequestButton.setEnabled(false); // Заблокировать кнопку во время запроса
         System.setProperty("javax.net.debug", "all");
-        GetRect.sendGetRequest("https://10.0.2.2:8080/api/users/", new GetRect.HttpCallback() {
+        GetRect.sendGetRequest("http:/194.87.199.70/api/users/1", new GetRect.HttpCallback() {
 
             public void onResponse(String response) {
                 try {
@@ -104,5 +106,14 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void onExitButtonClick(View view) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("token");
+        editor.apply();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 }
