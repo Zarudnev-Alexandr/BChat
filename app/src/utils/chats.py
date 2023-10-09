@@ -19,7 +19,9 @@ async def add_chat(session: AsyncSession, **kwargs) -> Chat:
 
 async def get_chat_users(session: AsyncSession, chat_id: int) -> list[User]:
     """Получить всех участников чата"""
-    result = await session.execute(select(User).join(ChatUser).join(Chat).where(Chat.id == chat_id))
+    result = await session.execute(
+        select(User).join(ChatUser).join(Chat).where(Chat.id == chat_id)
+    )
     return result.scalars().all()
 
 

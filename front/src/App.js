@@ -1,13 +1,12 @@
-// App.js
 import React from 'react';
 import Chat from './Chat';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
-      <Chat />
+      <Chat/>
     </div>
   );
-}
+};
 
 export default App;

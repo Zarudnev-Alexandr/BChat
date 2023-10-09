@@ -35,4 +35,15 @@ class UserCreate(BaseModel):
     date_of_birth: datetime.datetime
     email: str
     hashed_password: str
-    imageURL: Optional[str]
+    # imageURL: Optional[str]
+
+
+class UserAvatarCreate(BaseModel):
+    filename: str
+    content: bytes
+
+
+class UserAvatarResponse(BaseModel):
+    id: int
+    filename: str
+    content: bytes
