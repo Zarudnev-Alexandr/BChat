@@ -1,62 +1,58 @@
-// Chat.js
 import React, { useState, useEffect } from 'react';
 
-function Chat() {
+const Chat = () => {
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [socket, setSocket] = useState(null);
+  const [messageInput, setMessageInput] = useState('');
+  const chatUrl = 'ws://localhost:8000/ws/send_message/1/1/';
+  const websocket = new WebSocket(chatUrl);
 
   useEffect(() => {
-    const newSocket = new WebSocket('ws://localhost:8000/ws');
-    setSocket(newSocket);
-
-    newSocket.onopen = () => {
-      console.log('WebSocket is open now.');
+    websocket.onopen = (event) => {
+      console.log('WebSocket connection opened:', event);
     };
 
-    newSocket.onmessage = (event) => {
-      const message = event.data;
+    websocket.onmessage = (event) => {
+      const message = JSON.parse(event.data).message;
       setMessages([...messages, message]);
     };
 
-    newSocket.onclose = () => {
-      console.log('WebSocket is closed now.');
+    websocket.onclose = (event) => {
+      if (event.wasClean) {
+        console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
+      } else {
+        console.error(`Connection died`);
+      }
+    };
+
+    websocket.onerror = (error) => {
+      console.error('WebSocket Error:', error);
     };
 
     return () => {
-      newSocket.close();
+      websocket.close();
     };
   }, [messages]);
 
-  const handleInputChange = (event) => {
-    setInputMessage(event.target.value);
-  };
-
   const sendMessage = () => {
-    if (socket && inputMessage.trim() !== '') {
-      socket.send(inputMessage);
-      setInputMessage('');
+    if (messageInput) {
+      websocket.send(messageInput);
+      setMessageInput('');
     }
   };
 
   return (
     <div>
-      <div>
+      <div style={{ height: '300px', border: '1px solid #ccc', padding: '10px', overflowY: 'auto' }}>
         {messages.map((message, index) => (
           <div key={index}>{message}</div>
         ))}
       </div>
-      <div>
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={handleInputChange}
-          placeholder="Введите сообщение..."
-        />
-        <button onClick={sendMessage}>Отправить</button>
+      <div style={{ marginTop: '10px' }}>
+        <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
+        <button onClick={sendMessage}>Send</button>
       </div>
     </div>
   );
-}
+};
 
 export default Chat;

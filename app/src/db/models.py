@@ -1,11 +1,9 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, LargeBinary
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 import datetime
 import uuid
 from .database import Base
-
-
 
 
 class User(Base):
@@ -20,11 +18,22 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
     is_online = Column(Boolean, default=False, index=True)
-    imageURL = Column(String)
+    # imageURL = Column(String)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
 
     chats = relationship("ChatUser", back_populates="user")
     messages = relationship("Message", back_populates="sender")
+    users_avatar = relationship("UserAvatar", back_populates="user")
+
+
+class UserAvatar(Base):
+    __tablename__ = "users_avatar"
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=False)
+    content = Column(LargeBinary, nullable=False)
+    id_user = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="users_avatar")
 
 
 class Chat(Base):
