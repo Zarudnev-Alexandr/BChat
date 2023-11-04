@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+<!--        <TextView-->
+<!--            android:id="@+id/textViewInFragment1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Это Fragment1" />-->
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Имя: "
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+
+        <!-- Второй TextView -->
+        <TextView
+            android:id="@+id/surnameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Фамилия: "
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Третий TextView -->
+        <TextView
+            android:id="@+id/birthDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Дата рождения: "
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Четвертый TextView -->
+        <TextView
+            android:id="@+id/nicknameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Никнейм: "
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/setAvatarButton"
+            android:layout_width="224dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Установить аватарку"
+            android:onClick="onSetAvatarButtonClick" />
+
+
+        <Button
+            android:id="@+id/ExitBtn"
+            android:layout_width="224dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginTop="250dp"
+            android:onClick="onExitButtonClick"
+            android:text="Выйти" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

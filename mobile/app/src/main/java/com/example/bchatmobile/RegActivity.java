@@ -1,16 +1,20 @@
 package com.example.bchatmobile;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.net.Uri;
 import android.view.View;
 import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import java.util.Calendar;
 import android.widget.DatePicker;
 import java.text.SimpleDateFormat;
@@ -21,6 +25,8 @@ import androidx.fragment.app.DialogFragment;
 import java.io.IOException;
 import java.util.Date;
 
+
+import okhttp3.MultipartBody;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -31,12 +37,34 @@ import okhttp3.Response;
 
 public class RegActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE_REQUEST = 1; // Код запроса для выбора изображения
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText NameEditText;
     private EditText SurnameEditText;
     private EditText NicknameEditText;
     private EditText DateOfBirtEditText;
+    private ImageView imageView;
+    private Uri selectedImageUri = null;
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    // Получить Uri выбранного изображения
+                    selectedImageUri = result.getData().getData();
+
+                    // Отобразить изображение в ImageView
+                    if (selectedImageUri != null) {
+                        try {
+                            imageView.setImageURI(selectedImageUri);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +77,7 @@ public class RegActivity extends AppCompatActivity {
         SurnameEditText = findViewById(R.id.editTextSurname);
         NicknameEditText = findViewById(R.id.editTextNickname);
         DateOfBirtEditText = findViewById(R.id.editTextDate2);
+        imageView = findViewById(R.id.imageView);
         DateOfBirtEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +100,7 @@ public class RegActivity extends AppCompatActivity {
                         DateOfBirtEditText.setText(selectedDate);
                     }
                 },
-                // Установите текущую дату в качестве значения по умолчанию в диалоге
+
                 Calendar.getInstance().get(Calendar.YEAR),
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
@@ -79,6 +108,13 @@ public class RegActivity extends AppCompatActivity {
 
         // Показать диалог выбора даты
         datePickerDialog.show();
+    }
+
+    public void onChooseImageClick(View view) {
+        // Запустить активность выбора изображения
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        pickImageLauncher.launch(intent);
     }
 
     public void onRegisterButtonClick(View view) {
@@ -113,7 +149,7 @@ public class RegActivity extends AppCompatActivity {
             postData.put("surname", surname);
             postData.put("nickname", nickname);
             postData.put("date_of_birth", formattedDate);
-            postData.put("imageURL", "dedGandon");
+            postData.put("imageURL", "PenisKobana");
         } catch (JSONException e) {
             e.printStackTrace();
         }

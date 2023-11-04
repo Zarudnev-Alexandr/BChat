@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -80,16 +81,15 @@ public class LoginActivity extends AppCompatActivity {
 
             OkHttpClient client = new OkHttpClient();
 
-            HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
-            urlBuilder.addQueryParameter("email", email);
-            urlBuilder.addQueryParameter("password", password);
-            String fullUrl = urlBuilder.build().toString();
-            Log.d("MyApp", "Full URL: " + fullUrl);
+            FormBody formBody = new FormBody.Builder()
+                    .add("email", email)
+                    .add("password", password)
+                    .build();
 
 
             Request request = new Request.Builder()
-                    .url(fullUrl)
-                    .get()
+                    .url(url)
+                    .post(formBody)
                     .build();
 
             try {
@@ -97,19 +97,18 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
                     JSONObject jsonObject = new JSONObject(jsonResponse);
-                    JSONObject userObject = jsonObject.optJSONObject("user");
-                    Log.d("MyApp", "Obj: " + userObject);
-                    if (userObject != null) {
-                        String Token = jsonObject.optString("access_token", "");
-                        String Id = userObject.optString("id", "");
-                        Log.d("MyApp", "Token1: " + Token);
-                        Log.d("MyApp", "id: " + Id);
-                        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("token", Token);
-                        editor.putString("id", Id);
-                        editor.apply();
-                    }
+
+                    String Token = jsonObject.optString("access_token", ""); // Получаем значение access_token
+                    String Id = jsonObject.optString("user_id", ""); // Получаем значение user_id
+
+                    Log.d("MyApp", "Token: " + Token);
+                    Log.d("MyApp", "id: " + Id);
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("token", Token);
+                    editor.putString("id", Id);
+                    editor.apply();
                     Intent intent = new Intent(context, MainActivity.class);
                     startActivity(intent);
                     return jsonResponse;
@@ -136,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                // Обработка ошибки, например, вывод ошибки в лог
+                // Обработка ошибки
                 return null;
             }
         }
