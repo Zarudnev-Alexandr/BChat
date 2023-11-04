@@ -1,16 +1,9 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from fastapi.responses import StreamingResponse
 
-from src.db import (
-    Chat,
-    User,
-    get_password_hash,
-    create_access_token,
-    pwd_context,
-    UserAvatar,
-)
+from src.db import Chat, User, ChatUser
 
 
 async def get_users(session: AsyncSession) -> list[User]:
@@ -19,19 +12,16 @@ async def get_users(session: AsyncSession) -> list[User]:
     return result.scalars().all()
 
 
-async def login_user(session: AsyncSession, **kwargs):
-    """Логин пользовалея"""
+async def get_user_by_email(session: AsyncSession, email: str) -> dict | None:
+    result = await session.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
 
-    result = await session.execute(select(User).where(User.email == kwargs["email"]))
-    user = result.scalars().first()
-    if user is None or not pwd_context.verify(kwargs["password"], user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверное имя пользователя или пароль",
-        )
-    user_info = {"id": user.id, "nickname": user.nickname, "email": user.email}
-    access_token = create_access_token(data=user_info)
-    return {"user": user, "access_token": access_token}
+    if user is not None:
+        user_dict = user.__dict__
+        del user_dict["_sa_instance_state"]
+        return user_dict
+    else:
+        return None
 
 
 async def get_user(session: AsyncSession, id: int) -> User:
@@ -40,25 +30,12 @@ async def get_user(session: AsyncSession, id: int) -> User:
     return result.scalars().first()
 
 
-async def get_avatar(session: AsyncSession, id: int) -> UserAvatar:
-    """Забираем аватарку пользователя по id"""
-    result = await session.execute(select(UserAvatar).where(UserAvatar.id == id))
-    return result.scalar_one_or_none()
-
-
-async def get_user_avatar(session: AsyncSession, user_id: int) -> UserAvatar:
-    """Забираем аватарку по id пользователя"""
-    user = await get_user(session, user_id)
-    if user:
-      result = await session.execute(select(UserAvatar).where(UserAvatar.id_user == user_id))
-      user_avatars = result.scalars().all()
-      if user_avatars:
-        return user_avatars[-1]      
-    else:
-        raise HTTPException(
-            status_code=404,
-            detail="Не найден такой пользователь"
-        )
+async def update_avatar_user(session: AsyncSession, user_id: int, imageUrl: str):
+    """Добавит аватарку пользователя"""
+    await session.execute(
+        update(User).where(User.id == user_id).values(imageURL=imageUrl)
+    )
+    await session.commit()
 
 
 async def add_user(session: AsyncSession, **kwargs) -> User:
@@ -68,7 +45,15 @@ async def add_user(session: AsyncSession, **kwargs) -> User:
     return new_user
 
 
-async def get_user_chats(session: AsyncSession, id: int) -> list[Chat]:
+# async def get_user_chats(session: AsyncSession, id: int) -> list[Chat]:
+#     """Получить все чаты пользователя где он создатель"""
+#     result = await session.execute(select(Chat).where(Chat.id_creator == id))
+#     return result.scalars().all()
+
+
+async def get_all_chats_from_user(session: AsyncSession, user_id: int) -> list[Chat]:
     """Получить все чаты пользователя"""
-    result = await session.execute(select(Chat).where(Chat.id_creator == id))
+    result = await session.execute(
+        select(Chat).join(ChatUser).join(User).where(User.id == user_id)
+    )
     return result.scalars().all()

@@ -18,22 +18,11 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
     is_online = Column(Boolean, default=False, index=True)
-    # imageURL = Column(String)
+    imageURL = Column(String)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
 
     chats = relationship("ChatUser", back_populates="user")
     messages = relationship("Message", back_populates="sender")
-    users_avatar = relationship("UserAvatar", back_populates="user")
-
-
-class UserAvatar(Base):
-    __tablename__ = "users_avatar"
-    id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String, nullable=False)
-    content = Column(LargeBinary, nullable=False)
-    id_user = Column(Integer, ForeignKey("users.id"))
-
-    user = relationship("User", back_populates="users_avatar")
 
 
 class Chat(Base):
@@ -42,7 +31,7 @@ class Chat(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
-    id_creator = Column(Integer, ForeignKey("users.id"))
+    # id_creator = Column(Integer, ForeignKey("users.id"))
 
     users = relationship("ChatUser", back_populates="chat")
     messages = relationship("Message", back_populates="chat")
@@ -53,6 +42,7 @@ class ChatUser(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     date_of_join = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
+    is_admin = Column(Boolean, unique=False, default=False)
     chat_id = Column(Integer, ForeignKey("chats.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
 
