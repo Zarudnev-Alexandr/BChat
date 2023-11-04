@@ -1,59 +1,82 @@
-import io
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Form
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Form, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from src.db import get_session
-from src.db import get_password_hash, UserAvatar
+
+# from src.db import get_password_hash
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# from app.src.utils.security import get_current_user
 
 from src.schemas import (
     AllUsersProfilesMain,
     UserCreate,
     UserProfile,
-    UserAvatarCreate,
-    UserAvatarResponse,
 )
 from src.utils import (
     add_user,
     get_user,
-    get_user_chats,
+    # get_user_chats,
     get_users,
-    login_user,
-    get_avatar,
-    get_user_avatar
+    authenticate_user,
+    update_avatar_user,
+    create_access_token,
+    get_current_user,
+    get_password_hash,
+    get_all_chats_from_user,
 )
+
+cur_path = Path(__file__).resolve()
+load_dotenv(cur_path.parent.parent / ".env")
+
+AVATARPATH = os.getenv("AVATARPATH")
 
 users_router: APIRouter = APIRouter()
 
 
-@users_router.get("/login")
+from fastapi import Form
+
+
+@users_router.post("/login")
 async def login(
-    email: str, password: str, session: AsyncSession = Depends(get_session)
+    email: str = Form(...),
+    password: str = Form(...),
+    session: AsyncSession = Depends(get_session),
 ):
     """Логин пользователя"""
-    userInfo = {"email": email, "password": password}
-    user = await login_user(session, **userInfo)
+    user = await authenticate_user(session, email, password)
     if user:
-        return user
+        access_token = await create_access_token(data={"email": user["email"]})
+        return JSONResponse(
+            content={
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user_id": str(user["id"]),
+            },
+            status_code=status.HTTP_200_OK,
+        )
     else:
         return JSONResponse(
-            content={"message": f"Не найдено email - {email} password - {password}"}
+            content={"message": "Неверный email или пароль"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
 
 @users_router.get("/", response_model=list[AllUsersProfilesMain])
-async def get_all_users(session: AsyncSession = Depends(get_session)):
+async def get_all_users(current_user: dict = Depends(get_current_user)):
     """Список всех пользователей, удобен для скролла, мало данных"""
-    users = await get_users(session)
+    users = await get_users(current_user["session"])
     return users
 
 
 @users_router.get("/{id}", response_model=UserProfile)
-async def get_one_user(id: int, session: AsyncSession = Depends(get_session)):
+async def get_one_user(id: int, current_user: dict = Depends(get_current_user)):
     """Вся информация об одном пользователе по его id"""
-    user = await get_user(session, id)
-    user_avater = None
+    user = await get_user(current_user["session"], id)
     return (
         user
         if user
@@ -61,6 +84,17 @@ async def get_one_user(id: int, session: AsyncSession = Depends(get_session)):
             content={"message": "Такого пользователя не существует"}, status_code=404
         )
     )
+
+
+@users_router.get("/profile/", response_model=UserProfile)
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """Получить мой профиль пользователя"""
+    user = await get_user(current_user["session"], current_user["id"])
+    if not user:
+        return JSONResponse(
+            {"message": "Невозможно получить профиль пользователя"}, status_code=500
+        )
+    return user
 
 
 @users_router.post("/register")
@@ -86,68 +120,38 @@ async def add_one_user(user: UserCreate, session: AsyncSession = Depends(get_ses
 
 @users_router.post("/user-avatar/")
 async def create_file(
-    user_id: int = Form(...),
     image_file: UploadFile = File(...),
-    session: AsyncSession = Depends(get_session),
+    current_user: dict = Depends(get_current_user),
 ):
-    content = await image_file.read()
-
-    user = await get_user(session, user_id)
+    user = await get_user(current_user["session"], current_user["id"])
     if user:
-        avatar = UserAvatar(
-            filename=image_file.filename, content=content, id_user=user_id
+        file_path = (
+            AVATARPATH
+            + str(current_user["id"])
+            + "."
+            + image_file.filename.split(".")[-1]
         )
-        session.add(avatar)
-        await session.commit()
-        return JSONResponse(
-            content={
-                "message": f"Аватар пользователя {user.nickname} с id {user.id} успешно загружен"
-            },
-            status_code=201,
-        )
+        with open(file_path, "wb") as f:
+            f.write(image_file.file.read())
+        await update_avatar_user(current_user["session"], current_user["id"], file_path)
+        return JSONResponse({"message": f"Фото {file_path} загружено"})
     else:
         return JSONResponse(
-            content={"message": f"Пользователь с id {user_id} не найден"},
+            {"message": f"Не найден пользователь с id {current_user.id}"},
             status_code=404,
         )
 
 
-@users_router.get("/avatar/{file_id}")
-async def get_file(file_id: int, session: AsyncSession = Depends(get_session)):
-    user_avatar = await get_avatar(session, file_id)
-    if user_avatar is None:
-        return JSONResponse(
-            content={"message": f"Не удалось найти файл с id {file_id}"},
-            status_code=404,
-        )
-
-    return StreamingResponse(
-        io.BytesIO(user_avatar.content),
-        media_type="application/octet-stream",
-        headers={"Content-Disposition": f"attachment; filename={user_avatar.filename}"},
-    )
-
-@users_router.get("/user-avatar/{user_id}")
-async def get_one_avatar_from_user(user_id: int, session: AsyncSession = Depends(get_session)):
-    user_avatar = await get_user_avatar(session, user_id)
-    if user_avatar:
-        return StreamingResponse(
-            io.BytesIO(user_avatar.content),
-            media_type="application/octet-stream",
-            headers={"Content-Disposition": f"attachment; filename={user_avatar.filename}"},
-        )
-    else:
-        return JSONResponse({"message": f"Пользователь с id {user_id} без аватарки"}, status_code=404)
-
-
-@users_router.get("/{id}/chats")
-async def get_all_user_chats(id: int, session: AsyncSession = Depends(get_session)):
+@users_router.get("/chats/")
+async def get_all_user_chats(current_user: dict = Depends(get_current_user)):
     """Все чаты конкретного пользователя"""
-    user = await get_user(session, id)
-    if user:
-        user_chats = await get_user_chats(session, id)
-        return user_chats
-    else:
+
+    user = await get_user(current_user["session"], current_user["id"])
+    chats = await get_all_chats_from_user(current_user["session"], current_user["id"])
+    if not user:
+        return JSONResponse({"message": f"Пользователь с id {user.id} не найден"})
+    if not chats:
         return JSONResponse(
-            content={"message": f"Не найден пользователь с id {id}"}, status_code=404
+            {"message": f"Чатов у пользователя с id {user.id} не найдено"}
         )
+    return chats

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class ChatCreate(BaseModel):
     name: str
-    id_creator: int
+    # id_creator: int
 
 
 """Добавление пользователя в чат"""
@@ -16,6 +16,7 @@ class ChatCreate(BaseModel):
 class ChatUserCreate(BaseModel):
     chat_id: int
     user_id: int
+    is_admin: bool
 
 
 """Вся инфа о чате"""
