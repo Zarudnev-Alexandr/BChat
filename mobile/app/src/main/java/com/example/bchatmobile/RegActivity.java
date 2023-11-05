@@ -77,7 +77,6 @@ public class RegActivity extends AppCompatActivity {
         SurnameEditText = findViewById(R.id.editTextSurname);
         NicknameEditText = findViewById(R.id.editTextNickname);
         DateOfBirtEditText = findViewById(R.id.editTextDate2);
-        imageView = findViewById(R.id.imageView);
         DateOfBirtEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -117,9 +117,10 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void run() {
 
-                            String errorMessage = "Ошибка при регистрации: " + response.message();
-                            if (response.code() == 401) { // Код 422 часто используется для "Unprocessable Entity"
+                            String errorMessage = "Ошибка при авторизации: " + response.message();
+                            if (response.code() == 401) {
                                 try {
+                                    Log.d("gg", "nen");
                                     String responseBody = response.body().string();
                                     errorMessage = "Ошибка при авторизации: " + responseBody;
                                 } catch (IOException e) {

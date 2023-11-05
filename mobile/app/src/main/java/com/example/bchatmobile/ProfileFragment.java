@@ -107,13 +107,14 @@ public class ProfileFragment extends Fragment {
                     // Парсим JSON-ответ
                     JSONObject json = new JSONObject(responseBody);
                     Log.d("MyApp", "Obj: " + json);
+                    int id = json.getInt("id");
                     String name = json.getString("name");
                     String surname = json.getString("surname");
                     String birthDate = json.getString("date_of_birth");
                     String nickname = json.getString("nickname");
                     String userAvatar = json.getString("imageURL");
 
-                    UserProfile userProfile = new UserProfile(name,surname,birthDate,nickname,userAvatar);
+                    UserProfile userProfile = new UserProfile(id,name,surname,birthDate,nickname,userAvatar);
                     userProfile.setName(name);
                     userProfile.setSurname(surname);
                     userProfile.setBirthDate(birthDate);
@@ -253,13 +254,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserAvatar(String avatarUrl) {
-
-
             Picasso.get()
-                    .load(avatarUrl) // Замените на URL изображения пользователя
-                    .error(R.drawable.image) // Замените на ресурс для отображения ошибки
+                    .load(avatarUrl)
+                    .error(R.drawable.image)
                     .into(avatarImageView);
-
     }
 
 

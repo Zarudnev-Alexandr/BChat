@@ -33,6 +33,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void onAllUsersBtnClick(View view) {
+
+        AllUsersFragment fragment3 = new AllUsersFragment();
+
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment3)
+                .addToBackStack(null)
+                .commit();
+    }
+
     public void onProfBtnClick(View view) {
 
         ProfileFragment fragment1 = new ProfileFragment();

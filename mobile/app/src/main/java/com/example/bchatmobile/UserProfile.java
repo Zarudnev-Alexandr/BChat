@@ -2,6 +2,7 @@ package com.example.bchatmobile;
 
 public class UserProfile{
 
+    private int id;
     private String name;
     private String surname;
     private String birthDate;
@@ -10,7 +11,8 @@ public class UserProfile{
 
 
 
-    public UserProfile(String name, String surname, String birthDate, String nickname,String userAvatar) {
+    public UserProfile(int id, String name, String surname, String birthDate, String nickname, String userAvatar) {
+        this.id = id;
         this.name = name;
         this.surname = surname;
         this.birthDate = birthDate;
@@ -44,6 +46,10 @@ public class UserProfile{
 
     public String getNickname() {
         return nickname;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setNickname(String nickname) {
