@@ -1,15 +1,9 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
+from typing import List
 
 from src.db import Message
-
-
-async def get_message(session: AsyncSession, id: int):
-    """Получение сообщение по id"""
-
-    result = await session.execute(select(Message).where(Message.id == id))
-    return result.scalars().first()
 
 
 async def add_message(session: AsyncSession, **kwargs):
@@ -21,8 +15,29 @@ async def add_message(session: AsyncSession, **kwargs):
     return new_message
 
 
-async def get_chat_messages(session: AsyncSession, chat_id: int) -> list[Message]:
-    """Получить все сообщения в чате"""
+async def get_messages_paged(session: AsyncSession, chat_id: int, limit: int, offset: int) -> List[Message]:
+    """Получить определенное количество сообщений в чате с использованием пагинации"""
 
-    result = await session.execute(select(Message).where(Message.chat_id == chat_id))
+    # Используем метод slice для применения пагинации к результату запроса, сортируем по убыванию времени и по убыванию id
+    query = select(Message).where(Message.chat_id == chat_id).order_by(desc(Message.date_of_create), desc(Message.id)).offset(offset).limit(limit)
+
+    result = await session.execute(query)
+    
+    # Возвращаем список сообщений в виде объектов Message
     return result.scalars().all()
+
+
+async def get_message_by_id(session: AsyncSession, message_id: int) -> Message:
+    """Получить сообщение по его идентификатору"""
+
+    result = await session.execute(select(Message).where(Message.id == message_id))
+    return result.scalar()
+
+async def remove_message(session: AsyncSession, message_id: int):
+    """Удаление чата"""
+
+    removed_message = await session.execute(
+        select(Message).filter_by(id=message_id)
+    )
+    removed_message = removed_message.scalar()
+    await session.delete(removed_message)
