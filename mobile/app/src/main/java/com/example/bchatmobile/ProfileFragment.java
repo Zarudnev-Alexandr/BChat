@@ -22,6 +22,9 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,6 +69,7 @@ public class ProfileFragment extends Fragment {
         surnameTextView = view.findViewById(R.id.surnameTextView);
         birthDateTextView = view.findViewById(R.id.birthDateTextView);
         nicknameTextView = view.findViewById(R.id.nicknameTextView);
+        avatarImageView = view.findViewById(R.id.avatarImageView);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String userId = sharedPreferences.getString("id", "");
         String Token = sharedPreferences.getString("token", "");
@@ -81,6 +85,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected UserProfile doInBackground(String... params) {
+
             String userId = params[0];
             String Token = params[1];
             Log.d("MyApp", Token);
@@ -115,16 +120,19 @@ public class ProfileFragment extends Fragment {
                     userProfile.setNickname(nickname);
                     userProfile.setUserAvatar(userAvatar);
 
+
                     return userProfile;
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(UserProfile userProfile) {
+
             if (userProfile != null) {
 
                 nameTextView.setText("Имя: " + userProfile.getName());
@@ -132,14 +140,10 @@ public class ProfileFragment extends Fragment {
                 birthDateTextView.setText("Дата рождения: " + userProfile.getBirthDate());
                 nicknameTextView.setText("Никнейм: " + userProfile.getNickname());
 
-//                if (userProfile.getUserAvatar() != null) {
-//                    avatarImageView.setVisibility(View.VISIBLE);
-//
-//
-//                } else {
-//                    // Если аватар отсутствует, скрываем ImageView
-//                    avatarImageView.setVisibility(View.GONE);
-//                }
+                if (userProfile.getUserAvatar() != null && !userProfile.getUserAvatar().isEmpty()) {
+                    String fullUrl = "http://194.87.199.70/" + userProfile.getUserAvatar();
+                    loadUserAvatar(fullUrl);
+                }
             }
         }
     }
@@ -246,16 +250,17 @@ public class ProfileFragment extends Fragment {
         }
 
 
-
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            // Можно добавить обработку результата (например, обновить интерфейс)
-        }
     }
 
+    private void loadUserAvatar(String avatarUrl) {
 
+
+            Picasso.get()
+                    .load(avatarUrl) // Замените на URL изображения пользователя
+                    .error(R.drawable.image) // Замените на ресурс для отображения ошибки
+                    .into(avatarImageView);
+
+    }
 
 
 
