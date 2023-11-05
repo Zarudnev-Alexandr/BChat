@@ -56,6 +56,7 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(String)
     date_of_create = Column(TIMESTAMP(timezone=True), default=datetime.datetime.now())
+    is_edit = Column(Boolean, unique=False, default=False)
     sender_id = Column(Integer, ForeignKey("users.id"))
     chat_id = Column(Integer, ForeignKey("chats.id"))
 
