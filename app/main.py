@@ -1,8 +1,6 @@
-from fastapi import FastAPI, Depends, WebSocketException, status, WebSocketDisconnect
+from fastapi import FastAPI, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import FastAPI, WebSocket, APIRouter
-from typing import List
+from fastapi import FastAPI, WebSocket
 
 import src
 
@@ -31,6 +29,7 @@ app.include_router(src.chats_router, prefix="/api/chats", tags=["Chats"])
 
 app.include_router(src.messages_router, prefix="/api/messages", tags=["Messages"])
 
+app.include_router(src.bootcamps_router, prefix="/api/bootcamps", tags=["Bootcamps"])
 
 
 class ConnectionManager:

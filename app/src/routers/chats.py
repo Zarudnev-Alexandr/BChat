@@ -1,12 +1,7 @@
 from fastapi import APIRouter, Depends
-
-from fastapi.responses import JSONResponse
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.db.database import get_session
 
 from src.schemas import (
-    AllUsersProfilesMain,
     ChatCreate,
     ChatUserCreate,
     ChatBase,
