@@ -55,6 +55,17 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void onChatsBtnClick(View view) {
+
+        ChatsFragment fragment1 = new ChatsFragment();
+
+        // Запуск транзакции фрагментов для замены текущего фрагмента фрагментом 1
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment1)
+                .addToBackStack(null)  // Добавьте транзакцию в стек возврата, если необходимо
+                .commit();
+    }
+
 
 
 
