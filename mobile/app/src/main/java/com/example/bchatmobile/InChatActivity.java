@@ -1,35 +1,43 @@
 package com.example.bchatmobile;
 
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Call;
-import okhttp3.Callback;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.AdapterView;
-import android.content.Intent;
-
-import androidx.fragment.app.Fragment;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Call;
+import okhttp3.Callback;
 
 
-public class ChatsFragment extends Fragment {
+public class InChatActivity extends AppCompatActivity {
 
     private ListView chatsListView;
     private List<ChatObj> chatList = new ArrayList<>();
@@ -37,9 +45,9 @@ public class ChatsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chats, container, false);
+        View view = inflater.inflate(R.layout.in_chat_fragment, container, false);
 
-        chatsListView = view.findViewById(R.id.chatsListView);
+        chatsListView = view.findViewById(R.id.messagesList);
 
         fetchChatList();
 
@@ -48,7 +56,7 @@ public class ChatsFragment extends Fragment {
     }
 
     private void fetchChatList() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
 
         OkHttpClient client = new OkHttpClient();
@@ -77,19 +85,19 @@ public class ChatsFragment extends Fragment {
                             ChatAdapter adapter = new ChatAdapter(getContext(), chatList);
                             chatsListView.setAdapter(adapter);
 
-                            chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                                    ChatObj selectedChat = chatList.get(position);
-                                    int chatid = selectedChat.getId();
-
-
-                                    Intent intent = new Intent(getActivity(), InChatActivity.class);
-                                    intent.putExtra("chatId", chatid);
-                                    startActivity(intent);
-                                }
-                            });
+//                            chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//                                    ChatObj selectedChat = chatList.get(position);
+//                                    int chatid = selectedChat.getId();
+//
+//
+//                                    Intent intent = new Intent(getActivity(), UserProfileActivity.class);
+//                                    intent.putExtra("chatId", chatid);
+//                                    startActivity(intent);
+//                                }
+//                            });
                         }
                     });
                 }
