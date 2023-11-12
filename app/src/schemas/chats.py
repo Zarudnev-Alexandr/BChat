@@ -2,23 +2,25 @@ import datetime
 from pydantic import BaseModel
 
 
-
 """Создание чата"""
 
 
 class ChatCreate(BaseModel):
     name: str
-    id_creator: int
+    # id_creator: int
 
 
 """Добавление пользователя в чат"""
 
-class ChatUserCreate(BaseModel):    
+
+class ChatUserCreate(BaseModel):
     chat_id: int
     user_id: int
+    is_admin: bool
 
 
 """Вся инфа о чате"""
+
 
 class ChatBase(ChatCreate):
     id: int
@@ -26,6 +28,7 @@ class ChatBase(ChatCreate):
 
 
 """Вся информация об участнике чата"""
+
 
 class ChatUser(ChatUserCreate):
     id: int

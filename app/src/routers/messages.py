@@ -1,65 +1,142 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
+from fastapi import HTTPException
+from fastapi import Query
+from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
 
-from src.utils import get_message, add_message, get_chat, get_chat_users, get_caht_messages
-from src.schemas import MessageSchema, CreateMessageSchema
-
+from src.utils import (
+    get_current_user,
+    get_message_by_id,
+    add_message,
+    get_chat,
+    check_user_for_chat_membership,
+    remove_message,
+#     get_chat_users,
+    get_messages_paged,
+)
+from src.schemas import MessageSchema, CreateMessageSchema, EditMessageSchema
+from src.db import Message
 
 
 messages_router: APIRouter = APIRouter()
 
-
-@messages_router.get('/{id}', response_model=MessageSchema)
-async def get_one_message(id: int, session: AsyncSession = Depends(get_session)):
-  """Получение одного сообщения по id"""
-
-  message = await get_message(session, id)
-  if message:
-    return message
-  else:
-    return JSONResponse(content={"message": f"Не найдено сообщение с id {id}"})
-
-
-@messages_router.post('/add')
-async def add_one_message(message: CreateMessageSchema, session: AsyncSession = Depends(get_session)):
+@messages_router.post("/add/", response_model=MessageSchema)
+async def post_message_func(message: CreateMessageSchema, current_user: dict = Depends(get_current_user)):
   """Отправка сообщения"""
-  chat = await get_chat(session, message.chat_id)
-  chat_user = await get_chat_users(session, message.chat_id)
-  if chat:
-    if message.sender_id  in [cu.id for cu in chat_user]:
-      message = {
-        "text": message.text,
-        "sender_id": message.sender_id,
-        "chat_id": message.chat_id
-      }
-      messageAdd = await add_message(session, **message)
-      try:
-        await session.commit()
-        return messageAdd
-      except Exception as e:
-        print(e.__dict__["orig"])
-        await session.rollback()
-      return JSONResponse(content={"message": "Не удалось отправить сообщение"}, status_code=400)
-    else:
-      return JSONResponse(content={"message": f"Пользователь с id {message.sender_id} не находится в чате с id {message.chat_id}"}, status_code=400)
-  else:
-    return JSONResponse(content={"message": f"Чата с id {message.chat_id} не существует"}, status_code=404)
+
+  chat = await get_chat(current_user["session"], message.chat_id)
+  chat_member = await check_user_for_chat_membership(current_user["session"], current_user["id"], message.chat_id)
+
+  if not chat:
+    raise HTTPException(status_code=404, detail=f"Не обнаружен чат с id {message.chat_id}")
+  
+  if not chat_member:
+    raise HTTPException(status_code=403, detail=f"Пользователь с id {current_user['id']} не является участником чата с id {message.chat_id}")
+  
+  try:
+    message = {
+      "chat_id": message.chat_id,
+      "sender_id": current_user["id"],
+      "text": message.text,
+    }
+    postMessage = await add_message(current_user["session"], **message)
+    await current_user["session"].commit()
+    return postMessage
+  except:
+    raise HTTPException(status_code=400, detail="Не удалось отправить сообщение")
   
 
-@messages_router.get('/chat/{chat_id}/all')
-async def get_all_messages_from_chat(chat_id: int, session: AsyncSession = Depends(get_session)):
-  """Получение всех сообщений конкретного чата"""
+@messages_router.get("/get/", response_model=List[MessageSchema])
+async def get_messages_func(chat_id: int, 
+                            limit: int = Query(default=20, ge=1, le=100),  # Ограничиваем limit от 1 до 100
+                            offset: int = Query(default=0, ge=0), # offset должен быть больше или равен 0
+                            current_user: dict = Depends(get_current_user)):
+  """Получаем сообщения в конкретном чате"""
+  
+  chat = await get_chat(current_user["session"], chat_id)
+  chat_member = await check_user_for_chat_membership(current_user["session"], current_user["id"], chat_id)
+  
 
-  chat = await get_chat(session, chat_id)
-  if chat:
-    messages = await get_caht_messages(session, chat_id)
-    if messages:
-      return messages
-    else:
-      return JSONResponse(content={"message": "Нет сообщений, чат пуст"}, status_code=400)
-  else:
-    return JSONResponse(content={"message": f"Чата с id {chat_id} не существует"}, status_code=404)
+  if not chat:
+    raise HTTPException(status_code=404, detail=f"Не обнаружен чат с id {chat_id}")
   
+  if not chat_member:
+    raise HTTPException(status_code=403, detail=f"Пользователь с id {current_user['id']} не является участником чата с id {chat_id}")
   
+  # Вычисляем смещение (offset) для пагинации
+  offset = offset * limit
+
+  # Получаем сообщения с использованием пагинации
+  messages = await get_messages_paged(current_user["session"], chat_id, limit, offset)
+
+  return messages
+
+
+@messages_router.put("/edit/{message_id}/", response_model=MessageSchema)
+async def edit_message_func(
+    message_id: int, edited_message: EditMessageSchema, current_user: dict = Depends(get_current_user)
+):
+    """Редактирование сообщения"""
+
+    message = await get_message_by_id(current_user["session"], message_id)
+
+    if not message:
+        raise HTTPException(status_code=404, detail=f"Сообщение с id {message_id} не найдено")
+
+    chat_member = await check_user_for_chat_membership(
+        current_user["session"], current_user["id"], message.chat_id
+    )
+
+    if not chat_member:
+        raise HTTPException(status_code=403, detail="Вы не являетесь участником чата данного сообщения")
+
+    if message.sender_id != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Вы не можете редактировать чужие сообщения")
+
+    try:
+        # Обновляем только поле text
+        message.text = edited_message.text
+        message.is_edit = True
+
+        await current_user["session"].commit()
+        return message
+    except Exception as e:
+        print(e)
+        await current_user["session"].rollback()
+        raise HTTPException(status_code=400, detail="Не удалось отредактировать сообщение")
+
+
+@messages_router.delete("/delete/{message_id}/")
+async def delete_message_func(
+   message_id: int, 
+   current_user: dict = Depends(get_current_user)
+):
+   """Удаление сообщения"""
+
+   message = await get_message_by_id(current_user["session"], message_id)
+
+   if not message:
+        raise HTTPException(status_code=404, detail=f"Сообщение с id {message_id} не найдено")
+   
+   chat_member = await check_user_for_chat_membership(
+        current_user["session"], current_user["id"], message.chat_id
+    )
+      
+   if not chat_member:
+        raise HTTPException(status_code=403, detail="Вы не являетесь участником чата данного сообщения")
+   
+   if (message.sender_id != current_user["id"]) and (chat_member.is_admin == False):
+        raise HTTPException(status_code=403, detail="Вы не можете удалять чужие сообщения или вы не являетесь админом чата")
+   
+   try:
+      await remove_message(current_user["session"], message_id)
+      await current_user["session"].commit()
+      return {"message": f"Сообщение с id {message_id} удалено из чата"}
+   
+   except Exception as e:
+      print(e)
+      await current_user["session"].rollback()
+      raise HTTPException(status_code=400, detail="Не удалось удалить сообщение")
+   

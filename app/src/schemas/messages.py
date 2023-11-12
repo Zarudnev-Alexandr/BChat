@@ -5,12 +5,16 @@ from pydantic import BaseModel
 
 
 class CreateMessageSchema(BaseModel):
-  text: str
-  sender_id: int
-  chat_id: int
+    chat_id: int
+    text: str
 
 
 class MessageSchema(CreateMessageSchema):
-  id: int
-  date_of_create: datetime.datetime
-  
+    id: int
+    sender_id: int
+    date_of_create: datetime.datetime
+    is_edit: bool
+
+
+class EditMessageSchema(BaseModel):
+    text: str

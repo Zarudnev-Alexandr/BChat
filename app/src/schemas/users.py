@@ -22,8 +22,11 @@ class UserProfile(AllUsersProfilesMain):
     email: str
     hashed_password: str
     is_active: bool
-    token: str
     date_of_create: datetime.datetime
+
+
+class UserChatMember(AllUsersProfilesMain):
+    is_admin: bool
 
 
 """Создание пользователя при регистрации(только основная информация)"""
