@@ -69,6 +69,19 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public void onBootcampBtnClick(View view) {
+
+        BootcampFragment fragmentBoot = new BootcampFragment();
+
+        // Запуск транзакции фрагментов для замены текущего фрагмента фрагментом 1
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragmentBoot)
+                .addToBackStack(null)  // Добавьте транзакцию в стек возврата, если необходимо
+                .commit();
+    }
+
+
+
     public void onExitButtonClick(View view) {
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

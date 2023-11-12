@@ -105,7 +105,6 @@ public class RegActivity extends AppCompatActivity {
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
 
-        // Показать диалог выбора даты
         datePickerDialog.show();
     }
 

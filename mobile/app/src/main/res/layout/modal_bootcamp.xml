@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создание буткемпа"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/addressEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Адрес"
+            android:layout_below="@+id/titleTextView"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Добавлены новые поля -->
+        <EditText
+            android:id="@+id/startDateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Дата начала"
+            android:layout_below="@+id/addressEditText"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/endDateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Дата конца"
+            android:layout_below="@+id/startDateEditText"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/budgetEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Бюджет"
+            android:layout_below="@+id/endDateEditText"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/membersCountEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Количество участников"
+            android:layout_below="@+id/budgetEditText"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/descriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Описание"
+            android:layout_below="@+id/membersCountEditText"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Кнопки на одной строке -->
+        <LinearLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/membersCountEditText"
+            android:layout_marginTop="79dp"
+            android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/shakeButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="OK" />
+
+                <Button
+                    android:id="@+id/cancelButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Отмена" />
+
+        </LinearLayout>
+
+</RelativeLayout>
