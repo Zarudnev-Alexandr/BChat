@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, WebSocketException, status
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException
 from fastapi import Query
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
+from typing import Annotated
 
 from src.utils import (
     get_current_user,
@@ -17,7 +18,8 @@ from src.utils import (
     get_messages_paged,
 )
 from src.schemas import MessageSchema, CreateMessageSchema, EditMessageSchema
-from src.db import Message
+
+from src.websockets import ws_manager
 
 
 messages_router: APIRouter = APIRouter()
@@ -140,3 +142,24 @@ async def delete_message_func(
       await current_user["session"].rollback()
       raise HTTPException(status_code=400, detail="Не удалось удалить сообщение")
    
+
+
+websocket_router = APIRouter()
+
+# async def get_cookie_or_token(
+#     websocket: WebSocket,
+#     session: Annotated[str | None, Cookie()] = None,
+#     token: Annotated[str | None, Query()] = None,
+# ):
+#     if session is None and token is None:
+#         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+#     return session or token
+
+# @websocket_router.websocket_route("/{user_id}")
+# async def websocket_endpoint(websocket: WebSocket, current_user: dict = Depends(get_current_user)):
+#     await websocket.accept()
+#     while True:
+#         await websocket.send_text(data, current_user.id)
+#         data = await websocket.receive_text()
+#         await websocket.send_text(data, current_user["id"])
+    

@@ -1,47 +1,19 @@
-# from fastapi import FastAPI, WebSocket, APIRouter, WebSocketDisconnect, Depends
-# from sqlalchemy.ext.asyncio import AsyncSession
-# from src.db import get_session, Message
-# from src.schemas import CreateMessageSchema
-# from src.utils import get_chat_messages
-# from typing import List
-
-# websocket_router: APIRouter = APIRouter()
+from fastapi import WebSocket
 
 
-# class ConnectionManager:
-#     def __init__(self):
-#         self.active_connections: List[WebSocket] = []
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: dict[int, WebSocket] = {}
 
-#     async def connect(self, websocket: WebSocket):
-#         await websocket.accept()
-#         self.active_connections.append(websocket)
+    async def connect(self, user_id: int, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections[user_id] = websocket
 
-#     def disconnect(self, websocket: WebSocket):
-#         self.active_connections.remove(websocket)
+    def disconnect(self, user_id: int):
+        self.active_connections.pop(user_id, None)
 
-#     async def send_message(self, message: str, websocket: WebSocket):
-#         await websocket.send_text(message)
+    async def send_personal_message(self, message: dict, user_id: int):
+        if websocket := self.active_connections.get(user_id):
+            await websocket.send_json(message)
 
-#     async def get_messages_from_chat(self, chat_id: int, websocket: WebSocket, session: AsyncSession = Depends(get_session)):
-#         async for message in get_chat_messages(session, chat_id):
-#             await websocket.send_json(message)
-
-#     async def save_chat_message(self, message: Message):
-#         session = get_session()
-#         session.add(message)
-#         await session.commit()
-#         await session.close()
-
-
-# manager = ConnectionManager()
-
-
-# @websocket_router.websocket("/ws/{client_id}")
-# async def websocket_endpoint(websocket: WebSocket, client_id: int):
-#     await manager.connect(websocket)
-#     try:
-#         while True:
-#             data = await websocket.receive_text()
-#             await manager.send_message(f"Client {client_id}: {data}", websocket)
-#     except Exception:
-#         manager.disconnect(websocket)
+ws_manager = ConnectionManager()
