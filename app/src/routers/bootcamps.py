@@ -11,6 +11,7 @@ from src.schemas import (
 from src.utils import (
     get_current_user,
     get_bootcamps,
+    get_bootcamps_admin,
     add_bootcamp,
     add_bootcamp_role,
     get_bootcamp,
@@ -38,6 +39,26 @@ async def get_bootcamps_func(
   offset = offset * limit
 
   bootcamps = await get_bootcamps(current_user["session"], user_longitude, user_latitude, limit, offset)
+
+  if not bootcamps:
+    raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
+  
+  return bootcamps
+
+
+@bootcamps_router.get('/admin', response_model=list[BootcampBase])
+async def get_bootcamps_func(
+  user_longitude: float,
+  user_latitude: float,
+  limit: int = Query(default=20, ge=1, le=100), 
+  offset: int = Query(default=0, ge=0),
+  current_user: dict = Depends(get_current_user)
+):
+  """Все буткемпы"""
+
+  offset = offset * limit
+
+  bootcamps = await get_bootcamps_admin(current_user["session"], current_user["id"], user_longitude, user_latitude, limit, offset)
 
   if not bootcamps:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
@@ -198,6 +219,9 @@ async def edit_bootcamp_applications_func(
   
   if not bootcamp_application:
     raise HTTPException(status_code=404, detail=f"Не найдено заявки с id {application_id}😱")
+  
+  if bootcamp_application.user_id == current_user["id"]:
+    raise HTTPException(status_code=400, detail=f"Вы не можете изменить свою роль, вы же админ😕")
   
   try:
     bootcamp_application.role = status

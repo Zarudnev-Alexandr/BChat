@@ -13,6 +13,17 @@ async def get_bootcamps(session: AsyncSession, user_longitude: float, user_latit
     result = await session.execute(query)    
     return result.scalars().all()
 
+
+async def get_bootcamps_admin(session: AsyncSession, user_id: int, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
+    """Получить все буткемпы, где пользователь является админом"""
+
+    query = select(Bootcamp).join(BootcampRoles).where(
+        (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ")
+    ).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
+
+    result = await session.execute(query)    
+    return result.scalars().all()
+
 async def add_bootcamp(session, **kwargs) -> Bootcamp:
     """Создать буткемп"""
 
