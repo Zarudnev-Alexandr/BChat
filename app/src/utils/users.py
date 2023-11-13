@@ -30,6 +30,12 @@ async def get_user(session: AsyncSession, id: int) -> User:
     return result.scalars().first()
 
 
+async def get_user_by_nickname(session: AsyncSession, nickname: str) -> User:
+    """Забираем одного пользователя по никнейму из бд"""
+    result = await session.execute(select(User).where(User.nickname == nickname))
+    return result.scalars().first()
+
+
 async def update_avatar_user(session: AsyncSession, user_id: int, imageUrl: str):
     """Добавит аватарку пользователя"""
     await session.execute(
@@ -43,12 +49,6 @@ async def add_user(session: AsyncSession, **kwargs) -> User:
     new_user = User(**kwargs)
     session.add(new_user)
     return new_user
-
-
-# async def get_user_chats(session: AsyncSession, id: int) -> list[Chat]:
-#     """Получить все чаты пользователя где он создатель"""
-#     result = await session.execute(select(Chat).where(Chat.id_creator == id))
-#     return result.scalars().all()
 
 
 async def get_all_chats_from_user(session: AsyncSession, user_id: int) -> list[Chat]:
