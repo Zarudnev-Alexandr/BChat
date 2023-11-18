@@ -3,7 +3,7 @@ from sqlalchemy import select, desc, delete, or_, not_, and_
 from sqlalchemy.sql import func
 from math import sqrt
 
-from src.db import Bootcamp, BootcampRoles
+from src.db import Bootcamp, BootcampRoles, User
 
 async def get_bootcamps(session: AsyncSession, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
     """Получить все буткемпы"""
@@ -19,6 +19,17 @@ async def get_bootcamps_admin(session: AsyncSession, user_id: int, user_longitud
 
     query = select(Bootcamp).join(BootcampRoles).where(
         (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ")
+    ).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
+
+    result = await session.execute(query)    
+    return result.scalars().all()
+
+
+async def get_bootcamps_member(session: AsyncSession, user_id: int, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
+    """Получить все буткемпы, где пользователь является админом"""
+
+    query = select(Bootcamp).join(BootcampRoles).where(
+        (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "участник")
     ).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
 
     result = await session.execute(query)    
@@ -110,11 +121,17 @@ async def get_bootcamp_members(session: AsyncSession, bootcamp_id: int):
     
     # Получите заявки, исключая те, которые имеют роль "отклонено"
     result = await session.execute(
-        select(BootcampRoles)
+        select(BootcampRoles.role, User.nickname, User.id)
+        .join(User)
         .where(and_(
             BootcampRoles.role.in_(["участник", "админ"]),
-            BootcampRoles.bootcamp_id == bootcamp_id
+            BootcampRoles.bootcamp_id == bootcamp_id,
+            User.id == BootcampRoles.user_id
         ))
         .where(not_(BootcampRoles.role.in_(["отклонено", "ожидание"])))
     )
-    return result.scalars().all()
+    
+    # Преобразуем результат в список словарей
+    rows = result.all()
+    keys = result.keys()
+    return [dict(zip(keys, row)) for row in rows]

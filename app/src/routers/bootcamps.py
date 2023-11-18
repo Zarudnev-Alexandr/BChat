@@ -20,7 +20,8 @@ from src.utils import (
     remove_bootcamp_role,
     get_bootcamp_applications,
     get_bootcamp_application_by_id,
-    get_bootcamp_members
+    get_bootcamp_members,
+    get_bootcamps_member
 )
 
 
@@ -47,18 +48,38 @@ async def get_bootcamps_func(
 
 
 @bootcamps_router.get('/admin', response_model=list[BootcampBase])
-async def get_bootcamps_func(
+async def get_bootcamps_admin_func(
   user_longitude: float,
   user_latitude: float,
   limit: int = Query(default=20, ge=1, le=100), 
   offset: int = Query(default=0, ge=0),
   current_user: dict = Depends(get_current_user)
 ):
-  """Все буткемпы"""
+  """Все буткемпы, где пользователь админ"""
 
   offset = offset * limit
 
   bootcamps = await get_bootcamps_admin(current_user.session, current_user.id, user_longitude, user_latitude, limit, offset)
+
+  if not bootcamps:
+    raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
+  
+  return bootcamps
+
+
+@bootcamps_router.get('/member', response_model=list[BootcampBase])
+async def get_bootcamps_member_func(
+  user_longitude: float,
+  user_latitude: float,
+  limit: int = Query(default=20, ge=1, le=100), 
+  offset: int = Query(default=0, ge=0),
+  current_user: dict = Depends(get_current_user)
+):
+  """Все буткемпы, где пользователь участник"""
+
+  offset = offset * limit
+
+  bootcamps = await get_bootcamps_member(current_user.session, current_user.id, user_longitude, user_latitude, limit, offset)
 
   if not bootcamps:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
@@ -254,5 +275,6 @@ async def get_bootcamp_members_func(
   
   if bootcamp_status.role == BootcampRolesEnum.rejected:
     raise HTTPException(status_code=403, detail=f"Вы не можете просматривать участников буткемпа, ваша заявка отклонена")
+  
   
   return bootcamp_members
