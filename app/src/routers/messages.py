@@ -207,10 +207,17 @@ async def websocket_endpoint(
                 postMessage = await add_message(session, **message)
                 await session.commit()
                 if postMessage:
+                    print(postMessage.__dict__)
                     # Отправка сообщения всем пользователям в чате
                     await ws_manager.send_message(
-                        await ws_manager.send_message(
-                          {"sender": str(user.nickname), "text": data},
+                        await ws_manager.send_message({
+                           "message_id": postMessage.id,
+                           "sender": str(user.nickname), 
+                           "text": data, 
+                           "sender_id": postMessage.sender_id,
+                           "time": str(postMessage.date_of_create),
+                           "is_edit": postMessage.is_edit
+                           },
                           chat_id,
                         ),
                         chat_id,
