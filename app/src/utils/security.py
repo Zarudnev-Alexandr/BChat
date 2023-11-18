@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import traceback
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,7 +45,7 @@ async def authenticate_user(session, email: str, password: str) -> dict[Any, Any
             status_code=status.HTTP_400_BAD_REQUEST, detail="user not found"
         )
 
-    if not verify_password(password, user["hashed_password"]):
+    if not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="user password is incorrect"
         )
@@ -64,19 +65,21 @@ async def get_current_user(
                 detail="could not validate credentials",
             )
 
-    except JWTError:
+    except JWTError as e:
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="could not validate credentials",
         )
-
     user = await get_user_by_email(session, email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="user not found"
         )
 
-    user["session"] = session
-    user["token"] = token
+    setattr(user, "session", session)
+    setattr(user, "token", token)
+    # user["session"] = session
+    # user["token"] = token
 
     return user

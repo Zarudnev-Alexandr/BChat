@@ -38,7 +38,7 @@ async def get_bootcamps_func(
 
   offset = offset * limit
 
-  bootcamps = await get_bootcamps(current_user["session"], user_longitude, user_latitude, limit, offset)
+  bootcamps = await get_bootcamps(current_user.session, user_longitude, user_latitude, limit, offset)
 
   if not bootcamps:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
@@ -58,7 +58,7 @@ async def get_bootcamps_func(
 
   offset = offset * limit
 
-  bootcamps = await get_bootcamps_admin(current_user["session"], current_user["id"], user_longitude, user_latitude, limit, offset)
+  bootcamps = await get_bootcamps_admin(current_user.session, current_user.id, user_longitude, user_latitude, limit, offset)
 
   if not bootcamps:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
@@ -84,21 +84,21 @@ async def add_bootcamps_func(
   }
 
   try:
-    bootcampAdd = await add_bootcamp(current_user["session"], **bootcamp)
+    bootcampAdd = await add_bootcamp(current_user.session, **bootcamp)
     if bootcampAdd:
       bootcamp_role = {
         "role": BootcampRolesEnum.admin,
         "text": "создано админом",
         "bootcamp_id": bootcampAdd.id,
-        "user_id": current_user["id"]
+        "user_id": current_user.id
       }
-      role = await add_bootcamp_role(current_user["session"], **bootcamp_role)
+      role = await add_bootcamp_role(current_user.session, **bootcamp_role)
 
       result = [bootcampAdd, role]
       return result
   except Exception as e:
     print(e)
-    await current_user["session"].rollback()
+    await current_user.session.rollback()
 
 
 @bootcamps_router.delete('/{bootcamp_id}/')
@@ -107,8 +107,8 @@ async def delete_bootcamp_func(
 ):
   """Удаление буткемпа"""
 
-  bootcamp = await get_bootcamp(current_user["session"], bootcamp_id)
-  bootcamp_member_is_admin = await check_bootcamp_membership(current_user["session"], current_user["id"], bootcamp_id)
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_member_is_admin = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
 
   if not bootcamp:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпа с id {bootcamp_id}")
@@ -117,13 +117,13 @@ async def delete_bootcamp_func(
     raise HTTPException(status_code=400, detail=f"Вы не имеете к этому буткемпу никакого отношения")
   
   if bootcamp_member_is_admin.role != BootcampRolesEnum.admin:
-    raise HTTPException(status_code=403, detail=f"Пользователь с id {current_user['id']} не является админом буткемпа с id {bootcamp_id}")
+    raise HTTPException(status_code=403, detail=f"Пользователь с id {current_user.id} не является админом буткемпа с id {bootcamp_id}")
   
   try:
-    await remove_bootcamp_role(current_user["session"], bootcamp_id)
-    result = await remove_bootcamp(current_user["session"], bootcamp_id)
+    await remove_bootcamp_role(current_user.session, bootcamp_id)
+    result = await remove_bootcamp(current_user.session, bootcamp_id)
     if result:
-      return {"message": f"Буткемп с id {bootcamp_id} успешно удален его создателем с id {current_user['id']}"}
+      return {"message": f"Буткемп с id {bootcamp_id} успешно удален его создателем с id {current_user.id}"}
   except:
     raise HTTPException(status_code=404, detail=f"Не получилось удалить буткемп😢")
   
@@ -136,8 +136,8 @@ async def add_bootcamp_apply_func(
 ):
   """Отправка заявки на буткемп"""
 
-  bootcamp = await get_bootcamp(current_user["session"], bootcamp_id)
-  bootcamp_member = await check_bootcamp_membership(current_user["session"], current_user["id"], bootcamp_id)
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_member = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
 
   if not bootcamp:
     raise HTTPException(status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует😢")
@@ -159,9 +159,9 @@ async def add_bootcamp_apply_func(
       "role": BootcampRolesEnum.wating,
       "text": text,
       "bootcamp_id":bootcamp_id,
-      "user_id": current_user["id"]
+      "user_id": current_user.id
     }
-  role = await add_bootcamp_role(current_user["session"], **bootcamp_role)
+  role = await add_bootcamp_role(current_user.session, **bootcamp_role)
   return role
 
 
@@ -172,9 +172,9 @@ async def get_bootcamp_applications_func(
 ):
   """Просмотр заявок на буткемп"""
 
-  bootcamp = await get_bootcamp(current_user["session"], bootcamp_id)
-  bootcamp_member_is_admin = await check_bootcamp_membership(current_user["session"], current_user["id"], bootcamp_id)
-  bootcamp_applications = await get_bootcamp_applications(current_user["session"], bootcamp_id)
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_member_is_admin = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
+  bootcamp_applications = await get_bootcamp_applications(current_user.session, bootcamp_id)
 
   if not bootcamp:
     raise HTTPException(status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌")
@@ -204,9 +204,9 @@ async def edit_bootcamp_applications_func(
 ):
   """Изменение админом статуса заявки (одобрить/отклонить)"""
 
-  bootcamp = await get_bootcamp(current_user["session"], bootcamp_id)
-  bootcamp_member_is_admin = await check_bootcamp_membership(current_user["session"], current_user["id"], bootcamp_id)
-  bootcamp_application = await get_bootcamp_application_by_id(current_user["session"], application_id)
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_member_is_admin = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
+  bootcamp_application = await get_bootcamp_application_by_id(current_user.session, application_id)
 
   if not bootcamp:
     raise HTTPException(status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌")
@@ -220,12 +220,12 @@ async def edit_bootcamp_applications_func(
   if not bootcamp_application:
     raise HTTPException(status_code=404, detail=f"Не найдено заявки с id {application_id}😱")
   
-  if bootcamp_application.user_id == current_user["id"]:
+  if bootcamp_application.user_id == current_user.id:
     raise HTTPException(status_code=400, detail=f"Вы не можете изменить свою роль, вы же админ😕")
   
   try:
     bootcamp_application.role = status
-    await current_user["session"].commit()
+    await current_user.session.commit()
     return bootcamp_application
 
   except Exception as e:      
@@ -239,9 +239,9 @@ async def get_bootcamp_members_func(
 ):
   """Получение всех участников буткемпа"""
 
-  bootcamp = await get_bootcamp(current_user["session"], bootcamp_id)
-  bootcamp_status = await check_bootcamp_membership(current_user["session"], current_user["id"], bootcamp_id)
-  bootcamp_members = await get_bootcamp_members(current_user["session"], bootcamp_id)
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_status = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
+  bootcamp_members = await get_bootcamp_members(current_user.session, bootcamp_id)
 
   if not bootcamp:
     raise HTTPException(status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌")
