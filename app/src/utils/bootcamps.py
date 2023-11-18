@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc, delete, or_, not_
+from sqlalchemy import select, desc, delete, or_, not_, and_
 from sqlalchemy.sql import func
 from math import sqrt
 
@@ -111,7 +111,7 @@ async def get_bootcamp_members(session: AsyncSession, bootcamp_id: int):
     # Получите заявки, исключая те, которые имеют роль "отклонено"
     result = await session.execute(
         select(BootcampRoles)
-        .where(or_(
+        .where(and_(
             BootcampRoles.role.in_(["участник", "админ"]),
             BootcampRoles.bootcamp_id == bootcamp_id
         ))
