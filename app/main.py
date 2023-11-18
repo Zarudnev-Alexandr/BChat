@@ -4,7 +4,7 @@ from fastapi import FastAPI, WebSocket
 
 import src
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 origins = ["http://localhost", "http://localhost:8080", "http://localhost:3000", "*"]
 app.add_middleware(
@@ -31,7 +31,7 @@ app.include_router(src.messages_router, prefix="/api/messages", tags=["Messages"
 
 app.include_router(src.bootcamps_router, prefix="/api/bootcamps", tags=["Bootcamps"])
 
-app.include_router(src.websocket_router, prefix="/api/ws_messages", tags=["WS_Messages"])
+app.include_router(src.websocket_router, prefix="/api/ws", tags=["WS_Messages"])
 
 
 

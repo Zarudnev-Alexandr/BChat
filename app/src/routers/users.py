@@ -50,12 +50,12 @@ async def login(
     """Логин пользователя"""
     user = await authenticate_user(session, email, password)
     if user:
-        access_token = await create_access_token(data={"email": user["email"]})
+        access_token = await create_access_token(data={"email": user.email})
         return JSONResponse(
             content={
                 "access_token": access_token,
                 "token_type": "bearer",
-                "user_id": str(user["id"]),
+                "user_id": str(user.id),
             },
             status_code=status.HTTP_200_OK,
         )
@@ -69,14 +69,14 @@ async def login(
 @users_router.get("/", response_model=list[AllUsersProfilesMain])
 async def get_all_users(current_user: dict = Depends(get_current_user)):
     """Список всех пользователей, удобен для скролла, мало данных"""
-    users = await get_users(current_user["session"])
+    users = await get_users(current_user.session)
     return users
 
 
 @users_router.get("/{id}", response_model=UserProfile)
 async def get_one_user(id: int, current_user: dict = Depends(get_current_user)):
     """Вся информация об одном пользователе по его id"""
-    user = await get_user(current_user["session"], id)
+    user = await get_user(current_user.session, id)
     return (
         user
         if user
@@ -88,12 +88,12 @@ async def get_one_user(id: int, current_user: dict = Depends(get_current_user)):
 @users_router.get("/{nickname}/", response_model=UserProfile)
 async def get_one_user_by_nickname(nickname: str, current_user: dict = Depends(get_current_user)):
     """Вся информация об одном пользователе по его никнецму"""
-    user = await get_user_by_nickname(current_user["session"], nickname)
+    user = await get_user_by_nickname(current_user.session, nickname)
 
     if not user:
         raise HTTPException(status_code=404, detail=f"Пользователь с таким никнеймом не обнаружен😭")
 
-    if user.id == current_user["id"]:
+    if user.id == current_user.id:
         raise HTTPException(status_code=400, detail=f"Поздравляем, вы нашли самого себя😱, а теперь закройте это окно и по нормальному")
 
     return (
@@ -104,7 +104,7 @@ async def get_one_user_by_nickname(nickname: str, current_user: dict = Depends(g
 @users_router.get("/profile/", response_model=UserProfile)
 async def get_me(current_user: dict = Depends(get_current_user)):
     """Получить мой профиль пользователя"""
-    user = await get_user(current_user["session"], current_user["id"])
+    user = await get_user(current_user.session, current_user.id)
     if not user:
         return JSONResponse(
             {"message": "Невозможно получить профиль пользователя"}, status_code=500
@@ -138,35 +138,20 @@ async def create_file(
     image_file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user),
 ):
-    user = await get_user(current_user["session"], current_user["id"])
+    user = await get_user(current_user.session, current_user.id)
     if user:
         file_path = (
             AVATARPATH
-            + str(current_user["id"])
+            + str(current_user.id)
             + "."
             + image_file.filename.split(".")[-1]
         )
         with open(file_path, "wb") as f:
             f.write(image_file.file.read())
-        await update_avatar_user(current_user["session"], current_user["id"], file_path)
+        await update_avatar_user(current_user.session, current_user.id, file_path)
         return JSONResponse({"message": f"Фото {file_path} загружено"})
     else:
         return JSONResponse(
             {"message": f"Не найден пользователь с id {current_user.id}"},
             status_code=404,
         )
-
-
-# @users_router.get("/chats/")
-# async def get_all_user_chats(current_user: dict = Depends(get_current_user)):
-#     """Все чаты конкретного пользователя"""
-
-#     user = await get_user(current_user["session"], current_user["id"])
-#     chats = await get_all_chats_from_user(current_user["session"], current_user["id"])
-#     if not user:
-#         return JSONResponse({"message": f"Пользователь с id {user.id} не найден"})
-#     if not chats:
-#         return JSONResponse(
-#             {"message": f"Чатов у пользователя с id {user.id} не найдено"}
-#         )
-#     return chats

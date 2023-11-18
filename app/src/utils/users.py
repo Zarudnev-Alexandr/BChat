@@ -12,14 +12,12 @@ async def get_users(session: AsyncSession) -> list[User]:
     return result.scalars().all()
 
 
-async def get_user_by_email(session: AsyncSession, email: str) -> dict | None:
+async def get_user_by_email(session: AsyncSession, email: str):
     result = await session.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if user is not None:
-        user_dict = user.__dict__
-        del user_dict["_sa_instance_state"]
-        return user_dict
+        return user
     else:
         return None
 

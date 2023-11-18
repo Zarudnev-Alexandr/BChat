@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -22,7 +22,7 @@ SQLALCHEMY_DATABASE_URL = f"{DATABASE}://{DATABASE_USER}:{DATABASE_PASSWORD}@{DA
 
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 Base = declarative_base()
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def init_models():

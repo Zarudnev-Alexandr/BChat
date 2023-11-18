@@ -3,17 +3,28 @@ from fastapi import WebSocket
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[int, WebSocket] = {}
+        self.active_connections: dict[int, dict[int, WebSocket]] = {}
 
-    async def connect(self, user_id: int, websocket: WebSocket):
+    async def connect(self, chat_id: int, user_id: int, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[user_id] = websocket
+        if chat_id not in self.active_connections:
+            self.active_connections[chat_id] = {}
+        self.active_connections[chat_id][user_id] = websocket
 
-    def disconnect(self, user_id: int):
-        self.active_connections.pop(user_id, None)
+    def disconnect(self, chat_id: int, user_id: int):
+        if chat_id in self.active_connections:
+            self.active_connections[chat_id].pop(user_id, None)
 
-    async def send_personal_message(self, message: dict, user_id: int):
-        if websocket := self.active_connections.get(user_id):
-            await websocket.send_json(message)
+    async def send_message(self, message: dict, chat_id: int):
+        if chat_id in self.active_connections:
+            for user_id, websocket in self.active_connections[chat_id].items():
+                await websocket.send_json(message)
+
+    async def receive_message(self, chat_id: int):
+        if chat_id in self.active_connections:
+            for _, websocket in self.active_connections[chat_id].items():
+                await websocket.receive_json()
+
+
 
 ws_manager = ConnectionManager()
