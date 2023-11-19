@@ -117,11 +117,16 @@ async def get_bootcamp_application_by_id(session: AsyncSession, application_id: 
 
 
 async def get_bootcamp_members(session: AsyncSession, bootcamp_id: int):
-    """Получение всех заявок на буткемп"""
+    """Получение всех участников буткемпа"""
     
     # Получите заявки, исключая те, которые имеют роль "отклонено"
     result = await session.execute(
-        select(BootcampRoles.role, User.nickname, User.id)
+        select(
+            BootcampRoles.role,
+            User.nickname,
+            User.id,
+            BootcampRoles.id.label('application_id')
+        )
         .join(User)
         .where(and_(
             BootcampRoles.role.in_(["участник", "админ"]),
