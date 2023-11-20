@@ -54,14 +54,14 @@ async def add_chat(session: AsyncSession, **kwargs) -> Chat:
     session.add(new_chat)
     return new_chat
 
+
 async def remove_chat(session: AsyncSession, chat_id: int):
     """Удаление чата"""
 
-    removed_chat = await session.execute(
-        select(Chat).filter_by(id=chat_id)
-    )
+    removed_chat = await session.execute(select(Chat).filter_by(id=chat_id))
     removed_chat = removed_chat.scalar()
     await session.delete(removed_chat)
+
 
 async def get_chat_users(session: AsyncSession, chat_id: int):
     """Получить всех участников чата с информацией об администраторах"""
