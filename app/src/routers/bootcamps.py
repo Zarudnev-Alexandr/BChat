@@ -112,8 +112,6 @@ async def add_bootcamps_func(
 
     bootcamp = {
         "address": bootcamp.address,
-        "geoposition_longitude": bootcamp.geoposition_longitude,
-        "geoposition_latitude": bootcamp.geoposition_latitude,
         "start_time": bootcamp.start_time,
         "end_time": bootcamp.end_time,
         "budget": bootcamp.budget,
