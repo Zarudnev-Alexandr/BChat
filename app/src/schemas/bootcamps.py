@@ -13,3 +13,7 @@ class BootcampCreate(BaseModel):
 
 class BootcampBase(BootcampCreate):
     id: int
+
+class BootcampFull(BootcampCreate):
+    geoposition_longitude: float
+    geoposition_latitude: float
