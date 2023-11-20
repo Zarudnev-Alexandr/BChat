@@ -32,6 +32,3 @@ app.include_router(src.messages_router, prefix="/api/messages", tags=["Messages"
 app.include_router(src.bootcamps_router, prefix="/api/bootcamps", tags=["Bootcamps"])
 
 app.include_router(src.websocket_router, prefix="/api/ws", tags=["WS_Messages"])
-
-
-

@@ -1,5 +1,14 @@
 from enum import Enum
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, TIMESTAMP, Float, Enum as SQLAlchemyEnum
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    TIMESTAMP,
+    Float,
+    Enum as SQLAlchemyEnum,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 import datetime
@@ -87,12 +96,13 @@ class Bootcamp(Base):
     geoposition_latitude = Column(Float, nullable=False)
     start_time = Column(
         TIMESTAMP(timezone=True),
-        default=datetime.datetime.now() + datetime.timedelta(hours=1)  # Добавляем 1 час к времени начала буткемпа        
+        default=datetime.datetime.now()
+        + datetime.timedelta(hours=1),  # Добавляем 1 час к времени начала буткемпа
     )
     end_time = Column(TIMESTAMP(timezone=True), nullable=True)
     budget = Column(Integer, nullable=False)
     members_count = Column(Integer, nullable=False)
-    description = Column(String, nullable=True) 
+    description = Column(String, nullable=True)
 
 
 class BootcampRolesEnum(str, Enum):
@@ -100,6 +110,7 @@ class BootcampRolesEnum(str, Enum):
     member = "участник"
     wating = "ожидание"
     rejected = "отклонено"
+
 
 class BootcampRoles(Base):
     __tablename__ = "bootcamp_roles"
@@ -109,4 +120,3 @@ class BootcampRoles(Base):
     text = Column(String, nullable=True)
     bootcamp_id = Column(Integer, ForeignKey("bootcamp.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-

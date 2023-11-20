@@ -26,5 +26,4 @@ class ConnectionManager:
                 await websocket.receive_json()
 
 
-
 ws_manager = ConnectionManager()

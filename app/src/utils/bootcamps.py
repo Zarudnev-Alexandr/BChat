@@ -7,49 +7,90 @@ from typing import List
 
 from src.db import Bootcamp, BootcampRoles, User
 
-async def get_bootcamps(session: AsyncSession, user_latitude: float, user_longitude: float, limit: int, offset: int) -> List[Bootcamp]:
+
+async def get_bootcamps(
+    session: AsyncSession,
+    user_latitude: float,
+    user_longitude: float,
+    limit: int,
+    offset: int,
+) -> List[Bootcamp]:
     """Получить все буткемпы с учетом расстояния от пользователя"""
 
     # Выбираем все буткемпы
     query = select(Bootcamp)
-    result = await session.execute(query)    
+    result = await session.execute(query)
     bootcamps = result.scalars().all()
 
     # Сортируем буткемпы по расстоянию от пользователя
-    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
-
-    # Применяем пагинацию
-    return bootcamps[offset:offset+limit]
-
-
-async def get_bootcamps_admin(session: AsyncSession, user_id: int, user_latitude: float, user_longitude: float, limit: int, offset: int) -> list[Bootcamp]:
-    """Получить все буткемпы, где пользователь является админом"""
-
-    query = select(Bootcamp).join(BootcampRoles).where(
-        (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ")
-    )
-    result = await session.execute(query)    
-    bootcamps = result.scalars().all()
-
-    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
-
-    # Применяем пагинацию
-    return bootcamps[offset:offset+limit]
-
-
-async def get_bootcamps_member(session: AsyncSession, user_id: int, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
-    """Получить все буткемпы, где пользователь является админом"""
-
-    query = select(Bootcamp).join(BootcampRoles).where(
-        (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "участник")
+    bootcamps.sort(
+        key=lambda bootcamp: geodesic(
+            (user_latitude, user_longitude),
+            (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude),
+        ).meters
     )
 
-    result = await session.execute(query)    
+    # Применяем пагинацию
+    return bootcamps[offset : offset + limit]
+
+
+async def get_bootcamps_admin(
+    session: AsyncSession,
+    user_id: int,
+    user_latitude: float,
+    user_longitude: float,
+    limit: int,
+    offset: int,
+) -> list[Bootcamp]:
+    """Получить все буткемпы, где пользователь является админом"""
+
+    query = (
+        select(Bootcamp)
+        .join(BootcampRoles)
+        .where((BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ"))
+    )
+    result = await session.execute(query)
     bootcamps = result.scalars().all()
 
-    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
+    bootcamps.sort(
+        key=lambda bootcamp: geodesic(
+            (user_latitude, user_longitude),
+            (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude),
+        ).meters
+    )
 
-    return bootcamps[offset:offset+limit]
+    # Применяем пагинацию
+    return bootcamps[offset : offset + limit]
+
+
+async def get_bootcamps_member(
+    session: AsyncSession,
+    user_id: int,
+    user_longitude: float,
+    user_latitude: float,
+    limit: int,
+    offset: int,
+) -> list[Bootcamp]:
+    """Получить все буткемпы, где пользователь является админом"""
+
+    query = (
+        select(Bootcamp)
+        .join(BootcampRoles)
+        .where((BootcampRoles.user_id == user_id) & (BootcampRoles.role == "участник"))
+    )
+
+    result = await session.execute(query)
+    bootcamps = result.scalars().all()
+
+    bootcamps.sort(
+        key=lambda bootcamp: geodesic(
+            (user_latitude, user_longitude),
+            (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude),
+        ).meters
+    )
+
+    return bootcamps[offset : offset + limit]
+
 
 async def add_bootcamp(session, **kwargs) -> Bootcamp:
     """Создать буткемп"""
@@ -60,6 +101,7 @@ async def add_bootcamp(session, **kwargs) -> Bootcamp:
     await session.refresh(new_bootcamp)
     return new_bootcamp
 
+
 async def get_bootcamp(session: AsyncSession, bootcamp_id: int) -> Bootcamp:
     """Получить буткемп по id"""
     bootcamp = await session.execute(select(Bootcamp).where(Bootcamp.id == bootcamp_id))
@@ -69,9 +111,7 @@ async def get_bootcamp(session: AsyncSession, bootcamp_id: int) -> Bootcamp:
 async def remove_bootcamp(session: AsyncSession, bootcamp_id: int):
     """Удаление буткемпа"""
 
-    removed_bootcamp = await session.execute(
-        select(Bootcamp).filter_by(id=bootcamp_id)
-    )
+    removed_bootcamp = await session.execute(select(Bootcamp).filter_by(id=bootcamp_id))
     removed_bootcamp = removed_bootcamp.scalar()
     if removed_bootcamp:
         await session.delete(removed_bootcamp)
@@ -79,12 +119,16 @@ async def remove_bootcamp(session: AsyncSession, bootcamp_id: int):
         return True
     else:
         return False
-    
-async def leave_bootcamp(session: AsyncSession, user_id:int, bootcamp_id: int):
+
+
+async def leave_bootcamp(session: AsyncSession, user_id: int, bootcamp_id: int):
     """Покидание буткемпа"""
 
     leaved_nootcamp = await session.execute(
-        select(BootcampRoles).where((BootcampRoles.bootcamp_id == bootcamp_id) & (BootcampRoles.user_id == user_id))
+        select(BootcampRoles).where(
+            (BootcampRoles.bootcamp_id == bootcamp_id)
+            & (BootcampRoles.user_id == user_id)
+        )
     )
     leaved_nootcamp = leaved_nootcamp.scalar()
     if leaved_nootcamp:
@@ -93,9 +137,11 @@ async def leave_bootcamp(session: AsyncSession, user_id:int, bootcamp_id: int):
         return True
     else:
         return False
-    
 
-async def check_bootcamp_membership(session: AsyncSession, user_id: int, bootcamp_id: int) -> BootcampRoles:
+
+async def check_bootcamp_membership(
+    session: AsyncSession, user_id: int, bootcamp_id: int
+) -> BootcampRoles:
     """Проверка на участие пользователя в буткемпе"""
 
     result = await session.execute(
@@ -129,18 +175,19 @@ async def get_bootcamp_applications(session: AsyncSession, bootcamp_id: int):
     """Получение всех заявок на буткемп"""
 
     result = await session.execute(
-        select(BootcampRoles)
-        .where((BootcampRoles.role == "ожидание") & (BootcampRoles.bootcamp_id == bootcamp_id))
+        select(BootcampRoles).where(
+            (BootcampRoles.role == "ожидание")
+            & (BootcampRoles.bootcamp_id == bootcamp_id)
+        )
     )
     return result.scalars().all()
-    
+
 
 async def get_bootcamp_application_by_id(session: AsyncSession, application_id: int):
     """Получение одной конкретной роли по id"""
 
     result = await session.execute(
-        select(BootcampRoles)
-        .where(BootcampRoles.id == application_id)
+        select(BootcampRoles).where(BootcampRoles.id == application_id)
     )
 
     return result.scalar()
@@ -148,24 +195,26 @@ async def get_bootcamp_application_by_id(session: AsyncSession, application_id: 
 
 async def get_bootcamp_members(session: AsyncSession, bootcamp_id: int):
     """Получение всех участников буткемпа"""
-    
+
     # Получите заявки, исключая те, которые имеют роль "отклонено"
     result = await session.execute(
         select(
             BootcampRoles.role,
             User.nickname,
             User.id,
-            BootcampRoles.id.label('application_id')
+            BootcampRoles.id.label("application_id"),
         )
         .join(User)
-        .where(and_(
-            BootcampRoles.role.in_(["участник", "админ"]),
-            BootcampRoles.bootcamp_id == bootcamp_id,
-            User.id == BootcampRoles.user_id
-        ))
+        .where(
+            and_(
+                BootcampRoles.role.in_(["участник", "админ"]),
+                BootcampRoles.bootcamp_id == bootcamp_id,
+                User.id == BootcampRoles.user_id,
+            )
+        )
         .where(not_(BootcampRoles.role.in_(["отклонено", "ожидание"])))
     )
-    
+
     # Преобразуем результат в список словарей
     rows = result.all()
     keys = result.keys()

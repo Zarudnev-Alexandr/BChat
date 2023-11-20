@@ -85,20 +85,26 @@ async def get_one_user(id: int, current_user: dict = Depends(get_current_user)):
         )
     )
 
+
 @users_router.get("/{nickname}/", response_model=UserProfile)
-async def get_one_user_by_nickname(nickname: str, current_user: dict = Depends(get_current_user)):
+async def get_one_user_by_nickname(
+    nickname: str, current_user: dict = Depends(get_current_user)
+):
     """Вся информация об одном пользователе по его никнецму"""
     user = await get_user_by_nickname(current_user.session, nickname)
 
     if not user:
-        raise HTTPException(status_code=404, detail=f"Пользователь с таким никнеймом не обнаружен😭")
+        raise HTTPException(
+            status_code=404, detail=f"Пользователь с таким никнеймом не обнаружен😭"
+        )
 
     if user.id == current_user.id:
-        raise HTTPException(status_code=400, detail=f"Поздравляем, вы нашли самого себя😱, а теперь закройте это окно и по нормальному")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Поздравляем, вы нашли самого себя😱, а теперь закройте это окно и по нормальному",
+        )
 
-    return (
-      user        
-    )
+    return user
 
 
 @users_router.get("/profile/", response_model=UserProfile)
@@ -141,10 +147,7 @@ async def create_file(
     user = await get_user(current_user.session, current_user.id)
     if user:
         file_path = (
-            AVATARPATH
-            + str(current_user.id)
-            + "."
-            + image_file.filename.split(".")[-1]
+            AVATARPATH + str(current_user.id) + "." + image_file.filename.split(".")[-1]
         )
         with open(file_path, "wb") as f:
             f.write(image_file.file.read())
