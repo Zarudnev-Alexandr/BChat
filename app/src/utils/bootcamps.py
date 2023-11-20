@@ -5,6 +5,7 @@ from math import sqrt
 from geopy.distance import geodesic
 from typing import List
 
+from .more_utils import get_coordinates_from_dadata
 from src.db import Bootcamp, BootcampRoles, User
 
 
@@ -94,6 +95,14 @@ async def get_bootcamps_member(
 
 async def add_bootcamp(session, **kwargs) -> Bootcamp:
     """Создать буткемп"""
+
+    # Используем API Dadata для преобразования адреса в координаты
+    address = kwargs.get("address")
+    coordinates = await get_coordinates_from_dadata(address)
+
+    # Обновляем координаты в аргументах функции
+    kwargs["geoposition_latitude"] = coordinates.get("geoposition_latitude")
+    kwargs["geoposition_longitude"] = coordinates.get("geoposition_longitude")
 
     new_bootcamp = Bootcamp(**kwargs)
     session.add(new_bootcamp)
