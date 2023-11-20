@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from enum import Enum
+from geopy.distance import geodesic
+from typing import List
 
 from src.db import BootcampRolesEnum
 
@@ -27,24 +29,24 @@ from src.utils import (
 
 bootcamps_router: APIRouter = APIRouter()
 
-@bootcamps_router.get('/', response_model=list[BootcampBase])
+@bootcamps_router.get('/', response_model=List[BootcampBase])
 async def get_bootcamps_func(
-  user_longitude: float,
-  user_latitude: float,
-  limit: int = Query(default=20, ge=1, le=100), 
-  offset: int = Query(default=0, ge=0),
-  current_user: dict = Depends(get_current_user)
+    user_longitude: float,
+    user_latitude: float,
+    limit: int = Query(default=20, ge=1, le=100), 
+    offset: int = Query(default=0, ge=0),
+    current_user: dict = Depends(get_current_user)
 ):
-  """Все буткемпы"""
+    """Все буткемпы"""
 
-  offset = offset * limit
+    offset = offset * limit
 
-  bootcamps = await get_bootcamps(current_user.session, user_longitude, user_latitude, limit, offset)
+    bootcamps = await get_bootcamps(current_user.session, user_latitude, user_longitude, limit, offset)
 
-  if not bootcamps:
-    raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
-  
-  return bootcamps
+    if not bootcamps:
+        raise HTTPException(status_code=404, detail="Не найдено буткемпов😢")
+    
+    return bootcamps
 
 
 @bootcamps_router.get('/admin', response_model=list[BootcampBase])
@@ -59,7 +61,7 @@ async def get_bootcamps_admin_func(
 
   offset = offset * limit
 
-  bootcamps = await get_bootcamps_admin(current_user.session, current_user.id, user_longitude, user_latitude, limit, offset)
+  bootcamps = await get_bootcamps_admin(current_user.session, current_user.id, user_latitude, user_longitude, limit, offset)
 
   if not bootcamps:
     raise HTTPException(status_code=404, detail=f"Не найдено буткемпов😢")
