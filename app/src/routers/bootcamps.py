@@ -5,7 +5,7 @@ from typing import List
 
 from src.db import BootcampRolesEnum
 
-from src.schemas import BootcampCreate, BootcampBase
+from src.schemas import BootcampCreate, BootcampBase, BootcampFull
 
 from src.utils import (
     get_current_user,
@@ -28,7 +28,7 @@ from src.utils import (
 bootcamps_router: APIRouter = APIRouter()
 
 
-@bootcamps_router.get("/", response_model=List[BootcampBase])
+@bootcamps_router.get("/", response_model=List[BootcampFull])
 async def get_bootcamps_func(
     user_longitude: float,
     user_latitude: float,
@@ -50,7 +50,7 @@ async def get_bootcamps_func(
     return bootcamps
 
 
-@bootcamps_router.get("/admin", response_model=list[BootcampBase])
+@bootcamps_router.get("/admin", response_model=list[BootcampFull])
 async def get_bootcamps_admin_func(
     user_longitude: float,
     user_latitude: float,
@@ -77,7 +77,7 @@ async def get_bootcamps_admin_func(
     return bootcamps
 
 
-@bootcamps_router.get("/member", response_model=list[BootcampBase])
+@bootcamps_router.get("/member", response_model=list[BootcampFull])
 async def get_bootcamps_member_func(
     user_longitude: float,
     user_latitude: float,
