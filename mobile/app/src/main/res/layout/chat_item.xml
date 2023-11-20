@@ -19,7 +19,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:translationX="30px" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

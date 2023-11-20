@@ -84,6 +84,8 @@ public class InChatActivity extends AppCompatActivity {
         userId = getIntent().getIntExtra("user_id", 0);
         chat_id = getIntent().getIntExtra("chatId", 0);
 
+        Log.d("mymessage", "userid: " + userId);
+
         initializeWebSocket();
 
         Button button = findViewById(R.id.button5);
