@@ -2,27 +2,39 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, delete, or_, not_, and_
 from sqlalchemy.sql import func
 from math import sqrt
+from geopy.distance import geodesic
+from typing import List
 
 from src.db import Bootcamp, BootcampRoles, User
 
-async def get_bootcamps(session: AsyncSession, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
-    """Получить все буткемпы"""
+async def get_bootcamps(session: AsyncSession, user_latitude: float, user_longitude: float, limit: int, offset: int) -> List[Bootcamp]:
+    """Получить все буткемпы с учетом расстояния от пользователя"""
 
-    query = select(Bootcamp).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
-
+    # Выбираем все буткемпы
+    query = select(Bootcamp)
     result = await session.execute(query)    
-    return result.scalars().all()
+    bootcamps = result.scalars().all()
+
+    # Сортируем буткемпы по расстоянию от пользователя
+    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
+
+    # Применяем пагинацию
+    return bootcamps[offset:offset+limit]
 
 
-async def get_bootcamps_admin(session: AsyncSession, user_id: int, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
+async def get_bootcamps_admin(session: AsyncSession, user_id: int, user_latitude: float, user_longitude: float, limit: int, offset: int) -> list[Bootcamp]:
     """Получить все буткемпы, где пользователь является админом"""
 
     query = select(Bootcamp).join(BootcampRoles).where(
         (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ")
-    ).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
-
+    )
     result = await session.execute(query)    
-    return result.scalars().all()
+    bootcamps = result.scalars().all()
+
+    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
+
+    # Применяем пагинацию
+    return bootcamps[offset:offset+limit]
 
 
 async def get_bootcamps_member(session: AsyncSession, user_id: int, user_longitude: float, user_latitude: float, limit: int, offset: int) -> list[Bootcamp]:
