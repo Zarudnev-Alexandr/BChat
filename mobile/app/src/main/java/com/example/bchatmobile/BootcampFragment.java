@@ -95,6 +95,7 @@ public class BootcampFragment extends Fragment{
         AllBootcampButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BootcampListView.setAdapter(null);
                 adminBootcampsButton.setVisibility(View.INVISIBLE);
                 participantBootcampsButton.setVisibility(View.INVISIBLE);
                 fetchBootCampList();
@@ -105,6 +106,7 @@ public class BootcampFragment extends Fragment{
         MyBootcampButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BootcampListView.setAdapter(null);
                 fetchMyAdminBootCampList();
                 adminBootcampsButton.setVisibility(View.VISIBLE);
                 participantBootcampsButton.setVisibility(View.VISIBLE);
@@ -115,6 +117,7 @@ public class BootcampFragment extends Fragment{
         adminBootcampsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BootcampListView.setAdapter(null);
                 fetchMyAdminBootCampList();
             }
         });
@@ -122,6 +125,7 @@ public class BootcampFragment extends Fragment{
         participantBootcampsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BootcampListView.setAdapter(null);
                 fetchMyMembersBootCampList();
             }
         });

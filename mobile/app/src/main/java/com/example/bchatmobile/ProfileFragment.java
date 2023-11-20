@@ -71,12 +71,10 @@ public class ProfileFragment extends Fragment {
         nicknameTextView = view.findViewById(R.id.nicknameTextView);
         avatarImageView = view.findViewById(R.id.avatarImageView);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        String userId = sharedPreferences.getString("id", "");
+        int userId = sharedPreferences.getInt("id", 0);
         String Token = sharedPreferences.getString("token", "");
-        Log.d("Penscl", userId);
-        Log.d("Penscl", Token);
 
-        new GetUserProfileTask().execute(userId,Token);
+        new GetUserProfileTask().execute(String.valueOf(userId),Token);
 
         return view;
     }
@@ -86,7 +84,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected UserProfile doInBackground(String... params) {
 
-            String userId = params[0];
+            int userId = Integer.parseInt(params[0]);
             String Token = params[1];
             Log.d("MyApp", Token);
             OkHttpClient client = new OkHttpClient();

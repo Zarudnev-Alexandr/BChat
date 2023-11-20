@@ -48,7 +48,7 @@ public class ChatsFragment extends Fragment {
     private String token;
 
     private String bob;
-    private Integer userId;
+    private int userId;
 
 
     @Override
@@ -59,8 +59,8 @@ public class ChatsFragment extends Fragment {
 
         Button createChatButton = view.findViewById(R.id.createChatButton);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-         token = sharedPreferences.getString("token", "");
-         userId = Integer.parseInt(sharedPreferences.getString("id", "0"));
+        token = sharedPreferences.getString("token", "");
+        userId = sharedPreferences.getInt("id", 0);
 
         createChatButton.setOnClickListener(new View.OnClickListener() {
             @Override

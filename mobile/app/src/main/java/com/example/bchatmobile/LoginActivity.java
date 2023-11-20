@@ -100,8 +100,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     JSONObject jsonObject = new JSONObject(jsonResponse);
 
-                    String Token = jsonObject.optString("access_token", ""); // Get the value of access_token
-                    int Id = jsonObject.optInt("user_id", 0); // Get the value of user_id as an integer, default is 0
+                    String Token = jsonObject.optString("access_token", "");
+                    int Id = jsonObject.optInt("user_id", 0);
 
                     Log.d("MyApp", "Token: " + Token);
                     Log.d("MyApp", "id: " + Id);
