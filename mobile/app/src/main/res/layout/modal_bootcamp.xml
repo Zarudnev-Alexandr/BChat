@@ -22,7 +22,6 @@
             android:layout_below="@+id/titleTextView"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Добавлены новые поля -->
         <EditText
             android:id="@+id/startDateEditText"
             android:layout_width="match_parent"
@@ -63,7 +62,9 @@
             android:layout_below="@+id/membersCountEditText"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Кнопки на одной строке -->
+
+
+
         <LinearLayout
             android:id="@+id/buttonLayout"
             android:layout_width="match_parent"

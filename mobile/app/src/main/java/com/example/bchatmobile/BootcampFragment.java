@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.JsonArray;
@@ -56,8 +57,15 @@ import java.util.List;
 public class BootcampFragment extends Fragment{
 
     private Button addButton;
+    private Button AllBootcampButton;
+    private Button MyBootcampButton;
+    private Button adminBootcampsButton;
+    private Button participantBootcampsButton;
     private ListView BootcampListView;
     private List<Bootcamp> BootcampList = new ArrayList<>();
+    private int initialMarginTop;
+    private boolean marginTopIncreased = false;
+    private boolean marginTopDecreased = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +75,16 @@ public class BootcampFragment extends Fragment{
 
         addButton = view.findViewById(R.id.addButton);
 
+        AllBootcampButton = view.findViewById(R.id.AllBootcampButton);
+
+        MyBootcampButton = view.findViewById(R.id.MyBootcampButton);
+
+        adminBootcampsButton = view.findViewById(R.id.adminBootcampsButton);
+        participantBootcampsButton = view.findViewById(R.id.participantBootcampsButton);
+
+        initialMarginTop = ((ViewGroup.MarginLayoutParams) BootcampListView.getLayoutParams()).topMargin;
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,9 +92,68 @@ public class BootcampFragment extends Fragment{
             }
         });
 
-        fetchBootCampList();
+        AllBootcampButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adminBootcampsButton.setVisibility(View.INVISIBLE);
+                participantBootcampsButton.setVisibility(View.INVISIBLE);
+                fetchBootCampList();
+                decreaseMarginTop();
+            }
+        });
+
+        MyBootcampButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchMyAdminBootCampList();
+                adminBootcampsButton.setVisibility(View.VISIBLE);
+                participantBootcampsButton.setVisibility(View.VISIBLE);
+                increaseMarginTop();
+            }
+        });
+
+        adminBootcampsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchMyAdminBootCampList();
+            }
+        });
+
+        participantBootcampsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchMyMembersBootCampList();
+            }
+        });
+
+         fetchBootCampList();
 
         return view;
+    }
+
+    private void decreaseMarginTop() {
+        if (!marginTopDecreased) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) BootcampListView.getLayoutParams();
+            int newMarginTop = params.topMargin - getResources().getDimensionPixelSize(R.dimen.margin_increment);
+            params.topMargin = newMarginTop;
+            BootcampListView.setLayoutParams(params);
+
+            marginTopDecreased = true;
+            marginTopIncreased = false;
+        }
+    }
+
+
+    private void increaseMarginTop() {
+        if (!marginTopIncreased) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) BootcampListView.getLayoutParams();
+            int newMarginTop = params.topMargin + getResources().getDimensionPixelSize(R.dimen.margin_increment);
+            params.topMargin = newMarginTop;
+            BootcampListView.setLayoutParams(params);
+
+            marginTopIncreased = true;
+            marginTopDecreased = false;
+        }
     }
 
     private void openModal() {
@@ -98,6 +175,155 @@ public class BootcampFragment extends Fragment{
             return baseUrl;
         }
     }
+
+    private void fetchMyAdminBootCampList() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", "");
+        String baseUrl = "http://194.87.199.70/api/bootcamps/admin";
+        int userLongitude = 0;
+        int userLatitude = 0;
+        int limit = 20;
+        int offset = 0;
+
+        String url = buildUrl(baseUrl, userLongitude, userLatitude, limit, offset);
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("token", token)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    BootcampList = parseBootcampListFromJson(responseBody);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MyBootcampAdapter adapter = new MyBootcampAdapter(getContext(), BootcampList, new MyBootcampAdapter.OnViewApplicantButtonClickListener() {
+                                @Override
+                                public void onApplicantButtonClick(int bootcampId) {
+                                    openApplicantModal(bootcampId);
+                                }
+                            },  new MyBootcampAdapter.OnViewApplicationsButtonClickListener() {
+                                @Override
+                                public void onViewApplicationsButtonClick(int bootcampId) {
+                                    openApplicationsModal(bootcampId);
+                                }
+                            });
+
+                            BootcampListView.setAdapter(adapter);
+
+                        }
+                    });
+                }
+            }
+        });
+
+
+    }
+
+    private void fetchMyMembersBootCampList() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", "");
+        String baseUrl = "http://194.87.199.70/api/bootcamps/member";
+        int userLongitude = 0;
+        int userLatitude = 0;
+        int limit = 20;
+        int offset = 0;
+
+        String url = buildUrl(baseUrl, userLongitude, userLatitude, limit, offset);
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("token", token)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    BootcampList = parseBootcampListFromJson(responseBody);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MyMemberBootcampAdapter adapter = new MyMemberBootcampAdapter(getContext(), BootcampList, new MyMemberBootcampAdapter.OnViewApplicantButtonClickListener() {
+                                @Override
+                                public void onApplicantButtonClick(int bootcampId) {
+                                    openApplicantModal(bootcampId);
+                                }
+                            }, new MyMemberBootcampAdapter.OnExitBootcampButtonClickListener() {
+                                @Override
+                                public void onExitBootcampButtonClick(int bootcampId) {
+                                    fetchExitBootcamp(bootcampId);
+                                }
+                            });
+
+                            BootcampListView.setAdapter(adapter);
+
+                        }
+                    });
+                }
+            }
+        });
+
+
+    }
+
+
+    private void fetchExitBootcamp(int bootcampId) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", "");
+        String baseUrl = "http://194.87.199.70/api/bootcamps/leave/";
+
+        String url = baseUrl + bootcampId + "/";
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("token", token)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.d("X", "Успех");
+                }
+            }
+        });
+
+
+    }
+
+
 
 
     private void fetchBootCampList() {
@@ -155,6 +381,17 @@ public class BootcampFragment extends Fragment{
         dialogFragment.show(getFragmentManager(), "ApplyModalFragment");
     }
 
+    private void openApplicantModal(int bootcampId) {
+        ApplicantModalFragment dialogFragment = ApplicantModalFragment.newInstance(bootcampId);
+        dialogFragment.show(getFragmentManager(), "ApplicantModalFragment");
+    }
+
+    private void openApplicationsModal(int bootcampId) {
+        ApplicationModalFragment dialogFragment = ApplicationModalFragment.newInstance(bootcampId);
+        dialogFragment.show(getFragmentManager(), "ApplicationModalFragment");
+    }
+
+
 
     private List<Bootcamp> parseBootcampListFromJson(String json) {
         List<Bootcamp> bootcamps = new ArrayList<>();
@@ -181,8 +418,5 @@ public class BootcampFragment extends Fragment{
 
         return bootcamps;
     }
-
-
-
 
 }

@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLogButtonClick(View view){
-        String baseUrl = "http://194.87.199.70/api/users/login/";
+        String baseUrl = "http://194.87.199.70/api/users/login";
         String email = emailEditText.getText().toString();
         String hashed_password = passwordEditText.getText().toString();
         new PerformGetRequestAsyncTask(this).execute(baseUrl, email, hashed_password);
@@ -120,7 +120,6 @@ public class LoginActivity extends AppCompatActivity {
                             String errorMessage = "Ошибка при авторизации: " + response.message();
                             if (response.code() == 401) {
                                 try {
-                                    Log.d("gg", "nen");
                                     String responseBody = response.body().string();
                                     errorMessage = "Ошибка при авторизации: " + responseBody;
                                 } catch (IOException e) {
@@ -136,7 +135,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                // Обработка ошибки
                 return null;
             }
         }

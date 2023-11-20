@@ -37,34 +37,14 @@ import okhttp3.Response;
 
 public class RegActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_REQUEST = 1; // Код запроса для выбора изображения
+    private static final int PICK_IMAGE_REQUEST = 1;
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText NameEditText;
     private EditText SurnameEditText;
     private EditText NicknameEditText;
     private EditText DateOfBirtEditText;
-    private ImageView imageView;
-    private Uri selectedImageUri = null;
 
-    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    // Получить Uri выбранного изображения
-                    selectedImageUri = result.getData().getData();
-
-                    // Отобразить изображение в ImageView
-                    if (selectedImageUri != null) {
-                        try {
-                            imageView.setImageURI(selectedImageUri);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +72,6 @@ public class RegActivity extends AppCompatActivity {
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        // Обработка выбранной даты
                         String formattedMonth = (month + 1) < 10 ? "0" + (month + 1) : String.valueOf(month + 1);
                         String formattedDay = dayOfMonth < 10 ? "0" + dayOfMonth : String.valueOf(dayOfMonth);
                         String selectedDate = formattedDay + "/" + formattedMonth + "/" + year;
@@ -106,13 +85,6 @@ public class RegActivity extends AppCompatActivity {
         );
 
         datePickerDialog.show();
-    }
-
-    public void onChooseImageClick(View view) {
-        // Запустить активность выбора изображения
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("image/*");
-        pickImageLauncher.launch(intent);
     }
 
     public void onRegisterButtonClick(View view) {
@@ -133,10 +105,8 @@ public class RegActivity extends AppCompatActivity {
             }
             formattedDate = iso8601Format.format(date);
 
-            // Теперь у вас есть formattedDate в формате ISO 8601, который вы можете отправить на сервер
         } catch (ParseException e) {
             e.printStackTrace();
-            // Обработка ошибки при неправильном формате введенной даты
         }
 
         JSONObject postData = new JSONObject();
@@ -183,7 +153,7 @@ public class RegActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             String errorMessage = "Ошибка при регистрации: " + response.message();
-                            if (response.code() == 422) { // Код 422 часто используется для "Unprocessable Entity"
+                            if (response.code() == 422) {
                                 try {
                                     String responseBody = response.body().string();
                                     errorMessage = "Ошибка при регистрации: " + responseBody;

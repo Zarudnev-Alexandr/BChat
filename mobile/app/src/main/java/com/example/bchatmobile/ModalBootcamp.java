@@ -1,19 +1,12 @@
 package com.example.bchatmobile;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -41,6 +34,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
 
 public class ModalBootcamp extends DialogFragment{
 
@@ -97,6 +91,7 @@ public class ModalBootcamp extends DialogFragment{
                 dialog.dismiss();
             }
         });
+
 
         return dialog;
     }
@@ -156,10 +151,9 @@ public class ModalBootcamp extends DialogFragment{
     public void sendData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
-        Log.d("CHTO", token);
         String address = addressEditText.getText().toString();
-        int geoposition_longitude = 0;
-        int geoposition_latitude = 0;
+        double geoposition_longitude = 0;
+        double geoposition_latitude = 0;
         int budget = Integer.parseInt(budgetEditText.getText().toString());
         int members_count = Integer.parseInt(membersCountEditText.getText().toString());
         String start_time = startDateEditText.getText().toString();
@@ -226,13 +220,9 @@ public class ModalBootcamp extends DialogFragment{
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    Log.d("SPERMA", "Zalupa");
                     String responseBody = response.body().string();
-                    Log.d("GOLOVAchlena", responseBody);
                 } else {
-                    Log.d("SPERMA1", "Zalupa1");
                     String responseBody = response.body().string();
-                    Log.d("ERROR_RESPONSE", responseBody);
                 }
             }
         });

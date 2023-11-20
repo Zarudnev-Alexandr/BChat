@@ -14,17 +14,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
-    private OnApplyButtonClickListener onApplyButtonClickListener;
+public class MyMemberBootcampAdapter extends ArrayAdapter<Bootcamp> {
+    private OnViewApplicantButtonClickListener onViewApplicantButtonButtonClickListener;
+    private OnExitBootcampButtonClickListener onExitBootcampButtonClickListener;
 
-
-    public interface OnApplyButtonClickListener {
-        void onApplyButtonClick(int bootcampId);
+    public interface OnViewApplicantButtonClickListener {
+        void onApplicantButtonClick(int bootcampId);
     }
 
-    public BootcampAdaper(Context context, List<Bootcamp> BootcampList, OnApplyButtonClickListener listener) {
+    public interface OnExitBootcampButtonClickListener {
+        void onExitBootcampButtonClick(int bootcampId);
+    }
+
+    public MyMemberBootcampAdapter(Context context, List<Bootcamp> BootcampList, OnViewApplicantButtonClickListener onViewApplicantButtonButtonClickListener, OnExitBootcampButtonClickListener onExitBootcampButtonClickListener) {
         super(context, 0, BootcampList);
-        this.onApplyButtonClickListener = listener;
+        this.onViewApplicantButtonButtonClickListener = onViewApplicantButtonButtonClickListener;
+        this.onExitBootcampButtonClickListener = onExitBootcampButtonClickListener;
     }
 
     @Override
@@ -32,7 +37,7 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         Bootcamp bootcamp = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.bootcamp_prof_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.my_bootcamp_member_item, parent, false);
         }
 
         TextView budgetTextView = convertView.findViewById(R.id.budgetTextView);
@@ -42,7 +47,9 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         TextView endTimeTextView = convertView.findViewById(R.id.endTimeTextView);
         TextView descriptionTextView = convertView.findViewById(R.id.descriptionTextView);
 
-        Button applyButton = convertView.findViewById(R.id.applyButton);
+        Button viewApplicantButton = convertView.findViewById(R.id.viewApplicantButton);
+        Button exitBootcampButton = convertView.findViewById(R.id.ExitBootcampButton);
+
 
         budgetTextView.setText("Бюджет: " + bootcamp.getBudget());
         membersCountTextView.setText("Количество участников: " + bootcamp.getMembers_count());
@@ -67,11 +74,20 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         endTimeTextView.setText("Окончание: " + formattedEndTime);
         descriptionTextView.setText("Описание: " + bootcamp.getDescription());
 
-        applyButton.setOnClickListener(new View.OnClickListener() {
+        viewApplicantButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onApplyButtonClickListener != null) {
-                    onApplyButtonClickListener.onApplyButtonClick(bootcamp.getId());
+                if (onViewApplicantButtonButtonClickListener != null) {
+                    onViewApplicantButtonButtonClickListener.onApplicantButtonClick(bootcamp.getId());
+                }
+            }
+        });
+
+        exitBootcampButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onExitBootcampButtonClickListener != null) {
+                    onExitBootcampButtonClickListener.onExitBootcampButtonClick(bootcamp.getId());
                 }
             }
         });

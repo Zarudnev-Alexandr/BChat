@@ -30,10 +30,8 @@ public class GetRect {
                             response.append(line);
                         }
 
-                        // Преобразование строки JSON в объект JSON
                         final JSONObject jsonObject = new JSONObject(response.toString());
 
-                        // Вызов обратного вызова в главном потоке (UI thread)
                         if (callback != null) {
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
@@ -81,7 +79,7 @@ public class GetRect {
     }
 
     public interface HttpCallback {
-        void onResponse(JSONObject response); // Обратный вызов для JSON-ответа
-        void onResponseError(String error); // Обратный вызов для ошибок
+        void onResponse(JSONObject response);
+        void onResponseError(String error);
     }
 }

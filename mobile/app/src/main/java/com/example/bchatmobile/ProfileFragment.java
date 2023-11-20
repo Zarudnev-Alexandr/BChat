@@ -91,7 +91,6 @@ public class ProfileFragment extends Fragment {
             Log.d("MyApp", Token);
             OkHttpClient client = new OkHttpClient();
 
-            // Создаем запрос к серверу
             Request request = new Request.Builder()
                     .url("http://194.87.199.70/api/users/" + userId)
                     .get()
@@ -99,12 +98,10 @@ public class ProfileFragment extends Fragment {
                     .build();
             Log.d("MyApp", "Obj: " + request);
             try {
-                // Выполняем запрос и получаем ответ
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
 
-                    // Парсим JSON-ответ
                     JSONObject json = new JSONObject(responseBody);
                     Log.d("MyApp", "Obj: " + json);
                     int id = json.getInt("id");
@@ -156,7 +153,6 @@ public class ProfileFragment extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             selectedImageUri = data.getData();
 
-            // Вызываем AsyncTask для загрузки изображения
             new UploadImageTask().execute();
         }
     }
@@ -207,8 +203,6 @@ public class ProfileFragment extends Fragment {
 
 
 
-
-                // Замените URL на фактический URL вашего сервера
                 String serverUrl = "http://194.87.199.70/api/users/user-avatar/";
 
                 RequestBody requestBody = new MultipartBody.Builder()
@@ -225,17 +219,12 @@ public class ProfileFragment extends Fragment {
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-                    Log.d("MyApp", "PUDGE");
-                    Log.d("MyApp", "Zalupa: " + responseBody);
                 } else {
-                    Log.d("MyApp", "PUDGE");
                     String errorMessage = "Ошибка при регистрации: " + response.message();
-                    Log.d("MyApp", "Zalupa1: " + errorMessage);
-                    if (response.code() == 422) { // Код 422 часто используется для "Unprocessable Entity"
+                    if (response.code() == 422) {
                         try {
                             String responseBody = response.body().string();
                             errorMessage = "Ошибка при авторизации: " + responseBody;
-                            Log.d("MyApp", "Zalupa2: " + errorMessage);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

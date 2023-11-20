@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/roleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Роль: "
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/nicknameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Никнейм: "
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/expelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выгнать"
+        android:visibility="gone"/>
+
+</LinearLayout>

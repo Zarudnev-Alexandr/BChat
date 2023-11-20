@@ -48,10 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
         ProfileFragment fragment1 = new ProfileFragment();
 
-        // Запуск транзакции фрагментов для замены текущего фрагмента фрагментом 1
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment1)
-                .addToBackStack(null)  // Добавьте транзакцию в стек возврата, если необходимо
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -59,10 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
         ChatsFragment fragment1 = new ChatsFragment();
 
-        // Запуск транзакции фрагментов для замены текущего фрагмента фрагментом 1
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment1)
-                .addToBackStack(null)  // Добавьте транзакцию в стек возврата, если необходимо
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -73,10 +71,9 @@ public class MainActivity extends AppCompatActivity {
 
         BootcampFragment fragmentBoot = new BootcampFragment();
 
-        // Запуск транзакции фрагментов для замены текущего фрагмента фрагментом 1
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragmentBoot)
-                .addToBackStack(null)  // Добавьте транзакцию в стек возврата, если необходимо
+                .addToBackStack(null)
                 .commit();
     }
 
