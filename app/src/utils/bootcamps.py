@@ -42,10 +42,14 @@ async def get_bootcamps_member(session: AsyncSession, user_id: int, user_longitu
 
     query = select(Bootcamp).join(BootcampRoles).where(
         (BootcampRoles.user_id == user_id) & (BootcampRoles.role == "участник")
-    ).order_by(desc(Bootcamp.start_time), desc(Bootcamp.id)).offset(offset).limit(limit)
+    )
 
     result = await session.execute(query)    
-    return result.scalars().all()
+    bootcamps = result.scalars().all()
+
+    bootcamps.sort(key=lambda bootcamp: geodesic((user_latitude, user_longitude), (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude)).meters)
+
+    return bootcamps[offset:offset+limit]
 
 async def add_bootcamp(session, **kwargs) -> Bootcamp:
     """Создать буткемп"""
@@ -69,13 +73,27 @@ async def remove_bootcamp(session: AsyncSession, bootcamp_id: int):
         select(Bootcamp).filter_by(id=bootcamp_id)
     )
     removed_bootcamp = removed_bootcamp.scalar()
-    print("removed_bootcamp:", removed_bootcamp)  # Добавьте этот отладочный вывод
     if removed_bootcamp:
         await session.delete(removed_bootcamp)
         await session.commit()
         return True
     else:
         return False
+    
+async def leave_bootcamp(session: AsyncSession, user_id:int, bootcamp_id: int):
+    """Покидание буткемпа"""
+
+    leaved_nootcamp = await session.execute(
+        select(BootcampRoles).where((BootcampRoles.bootcamp_id == bootcamp_id) & (BootcampRoles.user_id == user_id))
+    )
+    leaved_nootcamp = leaved_nootcamp.scalar()
+    if leaved_nootcamp:
+        await session.delete(leaved_nootcamp)
+        await session.commit()
+        return True
+    else:
+        return False
+    
 
 async def check_bootcamp_membership(session: AsyncSession, user_id: int, bootcamp_id: int) -> BootcampRoles:
     """Проверка на участие пользователя в буткемпе"""

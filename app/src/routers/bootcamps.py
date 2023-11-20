@@ -23,7 +23,8 @@ from src.utils import (
     get_bootcamp_applications,
     get_bootcamp_application_by_id,
     get_bootcamp_members,
-    get_bootcamps_member
+    get_bootcamps_member,
+    leave_bootcamp
 )
 
 
@@ -122,6 +123,33 @@ async def add_bootcamps_func(
   except Exception as e:
     print(e)
     await current_user.session.rollback()
+
+
+@bootcamps_router.delete('/leave/{bootcamp_id}/')
+async def leave_bootcamp_func(
+  bootcamp_id: int, current_user: dict = Depends(get_current_user)
+):
+  """Пользователь покидвет буткемп"""
+
+  bootcamp = await get_bootcamp(current_user.session, bootcamp_id)
+  bootcamp_member = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
+  bootcamp_member_is_admin = await check_bootcamp_membership(current_user.session, current_user.id, bootcamp_id)
+
+  if not bootcamp:
+    raise HTTPException(status_code=404, detail=f"Не найдено буткемпа с id {bootcamp_id}")
+  
+  if not bootcamp_member:
+    raise HTTPException(status_code=403, detail=f"Вы не являетесь участником буткемпа🥱")
+  
+  if bootcamp_member_is_admin.role == BootcampRolesEnum.admin:
+    raise HTTPException(status_code=403, detail=f"Вы ходите покинуть свой же буткемп?🤨 Используйте удаление")
+  
+  try:
+    result = await leave_bootcamp(current_user.session, current_user.id, bootcamp_id)
+    if result:
+      return {"message": f"Вы успешно покинули буткемп с id {bootcamp_id}"}
+  except:
+    raise HTTPException(status_code=400, detail=f"Буткемп покинуть невозможно😈")
 
 
 @bootcamps_router.delete('/{bootcamp_id}/')
