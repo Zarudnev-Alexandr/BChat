@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_some_button"
+        android:title="Добавить пользователя"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_users"
+        android:title="Показать список участников"
+        app:showAsAction="never" />
+
+</menu>

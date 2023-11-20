@@ -20,6 +20,9 @@
         android:theme="@style/Theme.BChatMobile"
         tools:targetApi="31">
         <activity android:name=".UserProfileActivity" />
+        <activity android:name=".InChatActivity"
+            android:windowSoftInputMode="adjustPan"
+            />
         <activity
             android:name=".RegActivity"
             android:exported="false">

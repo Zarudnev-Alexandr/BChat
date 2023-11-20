@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLogButtonClick(View view){
-        String baseUrl = "http://194.87.199.70/api/users/login/";
+        String baseUrl = "http://194.87.199.70/api/users/login";
         String email = emailEditText.getText().toString();
         String hashed_password = passwordEditText.getText().toString();
         new PerformGetRequestAsyncTask(this).execute(baseUrl, email, hashed_password);
@@ -96,10 +96,12 @@ public class LoginActivity extends AppCompatActivity {
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
+                    Log.d("MyApp", "JsonLogin: " + jsonResponse);
+
                     JSONObject jsonObject = new JSONObject(jsonResponse);
 
-                    String Token = jsonObject.optString("access_token", ""); // Получаем значение access_token
-                    String Id = jsonObject.optString("user_id", ""); // Получаем значение user_id
+                    String Token = jsonObject.optString("access_token", ""); // Get the value of access_token
+                    int Id = jsonObject.optInt("user_id", 0); // Get the value of user_id as an integer, default is 0
 
                     Log.d("MyApp", "Token: " + Token);
                     Log.d("MyApp", "id: " + Id);
@@ -107,10 +109,12 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("token", Token);
-                    editor.putString("id", Id);
+                    editor.putInt("id", Id);
                     editor.apply();
+
                     Intent intent = new Intent(context, MainActivity.class);
                     startActivity(intent);
+
                     return jsonResponse;
                 } else {
                     runOnUiThread(new Runnable() {
