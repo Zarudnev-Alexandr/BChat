@@ -44,8 +44,6 @@ public class UserProfileActivity extends AppCompatActivity {
         surnameTextView = findViewById(R.id.surnameTextView);
         Brday = findViewById(R.id.BrdayTextView);
 
-
-        // Получите userId из Intent
         Intent intent = getIntent();
         int userId = intent.getIntExtra("userId", 0);
 

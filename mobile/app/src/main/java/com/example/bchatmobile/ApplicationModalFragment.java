@@ -87,8 +87,7 @@ public class ApplicationModalFragment extends DialogFragment {
     private void fetchAllApplicationBootcamp(int bootcampId) {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
-        String userIdString = sharedPreferences.getString("id", "");
-        int userId = Integer.parseInt(userIdString);
+
 
         String baseUrl = "http://194.87.199.70/api/bootcamps/";
         String url = baseUrl + bootcampId + "/applications/";
