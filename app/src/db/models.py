@@ -119,4 +119,4 @@ class BootcampRoles(Base):
     role = Column(SQLAlchemyEnum(BootcampRolesEnum), default=BootcampRolesEnum.wating)
     text = Column(String, nullable=True)
     bootcamp_id = Column(Integer, ForeignKey("bootcamp.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))    

@@ -6,7 +6,7 @@ from geopy.distance import geodesic
 from typing import List
 
 from .more_utils import get_coordinates_from_dadata
-from src.db import Bootcamp, BootcampRoles, User
+from src.db import Bootcamp, BootcampRoles, User, BootcampRolesEnum
 
 
 async def get_bootcamps(
@@ -15,24 +15,55 @@ async def get_bootcamps(
     user_longitude: float,
     limit: int,
     offset: int,
-) -> List[Bootcamp]:
-    """Получить все буткемпы с учетом расстояния от пользователя"""
+):
+    """Получить все буткемпы с учетом расстояния от пользователя и количеством участников"""
 
-    # Выбираем все буткемпы
-    query = select(Bootcamp)
+    # Выбираем все буткемпы и подсчитываем количество участников
+    query = (
+        select(
+            Bootcamp,
+            func.count(BootcampRoles.id).label("current_count_member")
+        )
+        .join(BootcampRoles, BootcampRoles.bootcamp_id == Bootcamp.id, isouter=True)
+        .filter(
+            or_(
+                BootcampRoles.role == BootcampRolesEnum.admin,
+                BootcampRoles.role == BootcampRolesEnum.member,
+            )
+        )
+        .group_by(Bootcamp.id)
+    )
+
     result = await session.execute(query)
-    bootcamps = result.scalars().all()
+    bootcamps = result.all()
+
+    # Преобразуем результат в словарь
+    bootcamps_dict = [
+        {
+            "id": bootcamp.id,
+            "geoposition_longitude": bootcamp.geoposition_longitude,
+            "geoposition_latitude": bootcamp.geoposition_latitude,
+            "address": bootcamp.address,
+            "start_time": bootcamp.start_time,
+            "end_time": bootcamp.end_time,
+            "budget": bootcamp.budget,
+            "members_count": bootcamp.members_count,
+            "description": bootcamp.description,
+            "current_members_count": count_members,
+        }
+        for bootcamp, count_members in bootcamps
+    ]
 
     # Сортируем буткемпы по расстоянию от пользователя
-    bootcamps.sort(
-        key=lambda bootcamp: geodesic(
+    bootcamps_dict.sort(
+        key=lambda b: geodesic(
             (user_latitude, user_longitude),
-            (bootcamp.geoposition_latitude, bootcamp.geoposition_longitude),
+            (b['geoposition_latitude'], b['geoposition_longitude']),
         ).meters
     )
 
     # Применяем пагинацию
-    return bootcamps[offset : offset + limit]
+    return bootcamps_dict[offset : offset + limit]
 
 
 async def get_bootcamps_admin(
@@ -48,7 +79,7 @@ async def get_bootcamps_admin(
     query = (
         select(Bootcamp)
         .join(BootcampRoles)
-        .where((BootcampRoles.user_id == user_id) & (BootcampRoles.role == "админ"))
+        .where((BootcampRoles.user_id == user_id) & (BootcampRoles.role == BootcampRolesEnum.admin))
     )
     result = await session.execute(query)
     bootcamps = result.scalars().all()

@@ -28,7 +28,7 @@ from src.utils import (
 bootcamps_router: APIRouter = APIRouter()
 
 
-@bootcamps_router.get("/", response_model=List[BootcampFull])
+@bootcamps_router.get("/",)
 async def get_bootcamps_func(
     user_longitude: float,
     user_latitude: float,
@@ -50,7 +50,7 @@ async def get_bootcamps_func(
     return bootcamps
 
 
-@bootcamps_router.get("/admin", response_model=list[BootcampFull])
+@bootcamps_router.get("/admin")
 async def get_bootcamps_admin_func(
     user_longitude: float,
     user_latitude: float,

@@ -17,3 +17,4 @@ class BootcampBase(BootcampCreate):
 class BootcampFull(BootcampBase):
     geoposition_longitude: float
     geoposition_latitude: float
+
