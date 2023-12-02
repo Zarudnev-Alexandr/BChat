@@ -4,9 +4,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#EEBF78"
     android:layout_height="match_parent">
 
     <Button
+        android:backgroundTint="#4C4945"
         android:id="@+id/addButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,6 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:backgroundTint="#4C4945"
         android:id="@+id/AllBootcampButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -35,6 +38,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:backgroundTint="#4C4945"
         android:id="@+id/MyBootcampButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

@@ -18,6 +18,8 @@
 
         <!-- Button to create a new chat -->
         <Button
+            android:backgroundTint="#C1790E"
+            android:textColor="@color/black"
             android:id="@+id/createChatButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,6 +27,8 @@
 
         <!-- ListView to display chats -->
         <ListView
+            android:backgroundTint="#EEBF78"
+            android:textColor="@color/black"
             android:id="@+id/chatsListView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

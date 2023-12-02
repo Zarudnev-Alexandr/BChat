@@ -56,7 +56,7 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.prof_fragment, container, false);
-        Button setAvatarButton = view.findViewById(R.id.setAvatarButton);
+        ImageView setAvatarButton = (ImageView)view.findViewById(R.id.setAvatarButton);
         setAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,7 +66,6 @@ public class ProfileFragment extends Fragment {
             }
         });
         nameTextView = view.findViewById(R.id.nameTextView);
-        surnameTextView = view.findViewById(R.id.surnameTextView);
         birthDateTextView = view.findViewById(R.id.birthDateTextView);
         nicknameTextView = view.findViewById(R.id.nicknameTextView);
         avatarImageView = view.findViewById(R.id.avatarImageView);
@@ -131,10 +130,9 @@ public class ProfileFragment extends Fragment {
 
             if (userProfile != null) {
 
-                nameTextView.setText("Имя: " + userProfile.getName());
-                surnameTextView.setText("Фамилия: " + userProfile.getSurname());
-                birthDateTextView.setText("Дата рождения: " + userProfile.getBirthDate());
-                nicknameTextView.setText("Никнейм: " + userProfile.getNickname());
+                nameTextView.setText("" + userProfile.getName()+" "+ userProfile.getSurname());
+                birthDateTextView.setText("Днюха: " + userProfile.getBirthDate());
+                nicknameTextView.setText("Ник: " + userProfile.getNickname());
 
                 if (userProfile.getUserAvatar() != null && !userProfile.getUserAvatar().isEmpty()) {
                     String fullUrl = "http://194.87.199.70/" + userProfile.getUserAvatar();

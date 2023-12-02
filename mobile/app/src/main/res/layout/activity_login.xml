@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="#EEBF78"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
@@ -58,8 +59,8 @@
         android:background="#FF9800"
         android:onClick="onLogButtonClick"
         android:text="Войти"
-        android:textColor="#0C0C0C"
-        app:backgroundTint="#FF9800"
+        android:textColor="#F4EFEF"
+        app:backgroundTint="#4C4945"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

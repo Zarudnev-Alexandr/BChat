@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    android:background="#ACA4A1"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -20,6 +22,8 @@
         android:textSize="14sp" />
 
     <Button
+        android:backgroundTint="#EEBF78"
+        android:textColor="@color/black"
         android:id="@+id/acceptButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,6 +32,8 @@
         android:text="Принять"/>
 
     <Button
+        android:backgroundTint="#EEBF78"
+        android:textColor="@color/black"
         android:id="@+id/rejectButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
