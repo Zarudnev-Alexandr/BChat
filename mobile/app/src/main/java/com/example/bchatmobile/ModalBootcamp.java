@@ -4,7 +4,10 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,9 +15,13 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 
@@ -38,7 +45,10 @@ import okhttp3.Response;
 
 public class ModalBootcamp extends DialogFragment{
 
-    private EditText addressEditText;
+    private EditText regionEditText;
+    private EditText localityEditText;
+    private EditText streetEditText;
+    private EditText houseEditText;
     private EditText startDateEditText;
     private EditText endDateEditText;
     private EditText budgetEditText;
@@ -53,7 +63,10 @@ public class ModalBootcamp extends DialogFragment{
         Dialog dialog = new Dialog(requireActivity());
         dialog.setContentView(R.layout.modal_bootcamp);
 
-        addressEditText = dialog.findViewById(R.id.addressEditText);
+        regionEditText = dialog.findViewById(R.id.regionEditText);
+        localityEditText = dialog.findViewById(R.id.localityEditText);
+        streetEditText = dialog.findViewById(R.id.streetEditText);
+        houseEditText = dialog.findViewById(R.id.houseEditText);
         startDateEditText = dialog.findViewById(R.id.startDateEditText);
         startDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +93,6 @@ public class ModalBootcamp extends DialogFragment{
             @Override
             public void onClick(View view) {
                 sendData();
-                dialog.dismiss();
             }
         });
 
@@ -151,12 +163,27 @@ public class ModalBootcamp extends DialogFragment{
     public void sendData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
-        String address = addressEditText.getText().toString();
+        String region = regionEditText.getText().toString();
+        String locality = localityEditText.getText().toString();
+        String street = streetEditText.getText().toString();
+        String house = houseEditText.getText().toString();
+        if (region.isEmpty() || locality.isEmpty() || street.isEmpty() || house.isEmpty()) {
+            // Одно из полей не заполнено, подсвечиваем его красным
+            highlightEmptyField(region, regionEditText);
+            highlightEmptyField(locality, localityEditText);
+            highlightEmptyField(street, streetEditText);
+            highlightEmptyField(house, houseEditText);
+
+            return;
+        }
+        String address = region + " обл, " + "г." + locality + ", " + "ул." +  street + ", " + "д." + house;
         double geoposition_longitude = 0;
         double geoposition_latitude = 0;
-        int budget = Integer.parseInt(budgetEditText.getText().toString());
-        int members_count = Integer.parseInt(membersCountEditText.getText().toString());
         String start_time = startDateEditText.getText().toString();
+        if (start_time.isEmpty()) {
+            highlightEmptyField(start_time, startDateEditText);
+            return;
+        }
         String formattedDate1 = "";
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US);
@@ -168,10 +195,15 @@ public class ModalBootcamp extends DialogFragment{
             formattedDate1 = iso8601Format.format(date);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            highlightErrorField("Выбери дату", startDateEditText);
+            return;
         }
 
         String end_time = endDateEditText.getText().toString();
+        if (end_time.isEmpty()) {
+            highlightEmptyField(end_time, endDateEditText);
+            return;
+        }
         String formattedDate2 = "";
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US);
@@ -183,7 +215,37 @@ public class ModalBootcamp extends DialogFragment{
             formattedDate2 = iso8601Format.format(date);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            highlightErrorField("Выбери дату", endDateEditText);
+            return;
+        }
+        String budgetText = budgetEditText.getText().toString();
+        int budget = 0;
+        if (!budgetText.isEmpty()) {
+            try {
+                budget = Integer.parseInt(budgetText);
+            } catch (NumberFormatException e) {
+                highlightErrorField("Введите число", budgetEditText);
+                return;
+            }
+        }
+        else{
+            highlightEmptyField(budgetText, budgetEditText);
+            return;
+        }
+
+        String membersCountText = membersCountEditText.getText().toString();
+        int members_count = 0;
+        if (!membersCountText.isEmpty()) {
+            try {
+                members_count = Integer.parseInt(membersCountText);
+            } catch (NumberFormatException e) {
+                highlightErrorField("Введите число", membersCountEditText);
+                return;
+            }
+        }
+        else{
+            highlightEmptyField(membersCountText, membersCountEditText);
+            return;
         }
         String description = descriptionEditText.getText().toString();
 
@@ -205,6 +267,7 @@ public class ModalBootcamp extends DialogFragment{
         String url = "http:/194.87.199.70/api/bootcamps/";
 
         RequestBody requestBody = RequestBody.create(postData.toString(), MediaType.parse("application/json; charset=utf-8"));
+        Log.d("govno",postData.toString() );
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
@@ -220,13 +283,72 @@ public class ModalBootcamp extends DialogFragment{
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
+                    dismiss();
                     String responseBody = response.body().string();
+                    Log.d("Xyuatna", responseBody);
                 } else {
                     String responseBody = response.body().string();
+                    Log.d("Xyuatna1", responseBody);
                 }
             }
         });
 
+    }
+
+    private void highlightEmptyField(String fieldValue, EditText editText) {
+        if (fieldValue.isEmpty()) {
+            // Поле пустое, подсвечиваем его красным цветом
+            editText.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+            // Устанавливаем слушатель текста для убирания подсветки при следующем вводе
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    // Ничего не делаем
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    // При изменении текста убираем подсветку
+                    editText.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                    // Убираем слушатель, чтобы не вызывать его повторно
+                    editText.removeTextChangedListener(this);
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    // Ничего не делаем
+                }
+            });
+        }
+    }
+
+    private void highlightErrorField(String errorMessage, EditText editText) {
+        // Задаем красный цвет для подсветки
+        int redColor = ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark);
+
+        // Задаем красный цвет для рамки поля ввода
+        editText.getBackground().mutate().setColorFilter(redColor, PorterDuff.Mode.SRC_ATOP);
+
+        // Показываем всплывающую подсказку с сообщением об ошибке
+        editText.setError(errorMessage);
+
+        // Слушатель для удаления подсветки при вводе данных
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                // Убираем подсветку и сообщение об ошибке при изменении текста
+                editText.getBackground().mutate().setColorFilter(null);
+                editText.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
     }
 
 }

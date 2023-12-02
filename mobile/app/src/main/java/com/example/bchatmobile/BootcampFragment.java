@@ -2,8 +2,10 @@ package com.example.bchatmobile;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +57,18 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BootcampFragment extends Fragment{
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+
+import androidx.core.app.ActivityCompat;
+
+
+public class BootcampFragment extends Fragment {
 
     private Button addButton;
     private Button AllBootcampButton;
@@ -66,6 +80,13 @@ public class BootcampFragment extends Fragment{
     private int initialMarginTop;
     private boolean marginTopIncreased = false;
     private boolean marginTopDecreased = false;
+    private LocationManager locationManager;
+    private boolean isFetchingData = false;
+    private boolean oneRec = false;
+    private boolean onlyAllBootcamp = false;
+    private int currentPage = 0;
+    private static final int LIMIT = 5;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,6 +99,16 @@ public class BootcampFragment extends Fragment{
         AllBootcampButton = view.findViewById(R.id.AllBootcampButton);
 
         MyBootcampButton = view.findViewById(R.id.MyBootcampButton);
+
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else {
+            startLocationUpdates();
+        }
+
 
         adminBootcampsButton = view.findViewById(R.id.adminBootcampsButton);
         participantBootcampsButton = view.findViewById(R.id.participantBootcampsButton);
@@ -95,6 +126,9 @@ public class BootcampFragment extends Fragment{
         AllBootcampButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onlyAllBootcamp = false;
+                currentPage = 0;
+                BootcampList.clear();
                 BootcampListView.setAdapter(null);
                 adminBootcampsButton.setVisibility(View.INVISIBLE);
                 participantBootcampsButton.setVisibility(View.INVISIBLE);
@@ -106,6 +140,8 @@ public class BootcampFragment extends Fragment{
         MyBootcampButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onlyAllBootcamp = true;
+                BootcampList.clear();
                 BootcampListView.setAdapter(null);
                 fetchMyAdminBootCampList();
                 adminBootcampsButton.setVisibility(View.VISIBLE);
@@ -117,6 +153,7 @@ public class BootcampFragment extends Fragment{
         adminBootcampsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onlyAllBootcamp = true;
                 BootcampListView.setAdapter(null);
                 fetchMyAdminBootCampList();
             }
@@ -125,14 +162,78 @@ public class BootcampFragment extends Fragment{
         participantBootcampsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onlyAllBootcamp = true;
                 BootcampListView.setAdapter(null);
                 fetchMyMembersBootCampList();
             }
         });
 
-         fetchBootCampList();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            BootcampListView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                @Override
+                public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                    if (!isFetchingData) {
+                        int totalItemCount = BootcampListView.getCount();
+                        int lastVisibleItem = BootcampListView.getLastVisiblePosition();
+
+                        if (lastVisibleItem == totalItemCount - 1 && !oneRec && !onlyAllBootcamp) {
+                            oneRec = true;
+                            Log.d("zzxc", "xzc");
+                            fetchBootCampList();
+                        } else {
+                            oneRec = false;
+                        }
+                    }
+                }
+            });
+        }
 
         return view;
+    }
+
+    private void startLocationUpdates() {
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location loc) {
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("userLongitude", (int) (loc.getLongitude() * 1E6));
+                editor.putInt("userLatitude", (int) (loc.getLatitude() * 1E6));
+                editor.apply();
+
+                // locationManager.removeUpdates(this);
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Для получения местоположения необходимо включить геолокацию. Включить сейчас?")
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+
+        };
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("xxxyyyuu", "fdg");
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
+        }
+
     }
 
     private void decreaseMarginTop() {
@@ -165,7 +266,7 @@ public class BootcampFragment extends Fragment{
         dialogFragment.show(getFragmentManager(), "AddDataDialogFragment");
     }
 
-    private static String buildUrl(String baseUrl, int userLongitude, int userLatitude, int limit, int offset) {
+    private static String buildUrl(String baseUrl, double userLongitude, double userLatitude, int limit, int offset) {
         try {
             StringBuilder urlBuilder = new StringBuilder(baseUrl);
             urlBuilder.append("?user_longitude=").append(URLEncoder.encode(String.valueOf(userLongitude), "UTF-8"))
@@ -184,12 +285,18 @@ public class BootcampFragment extends Fragment{
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
         String baseUrl = "http://194.87.199.70/api/bootcamps/admin";
-        int userLongitude = 0;
-        int userLatitude = 0;
-        int limit = 20;
+        int userLongitude = sharedPreferences.getInt("userLongitude", 0);
+        int userLatitude = sharedPreferences.getInt("userLatitude", 0);
+        Log.d("xcx", String.valueOf(userLongitude));
+        Log.d("xcx", String.valueOf(userLatitude));
+        double userLongitudeDegrees = userLongitude / 1E6;
+        double userLatitudeDegrees = userLatitude / 1E6;
+        int limit = 100;
         int offset = 0;
 
-        String url = buildUrl(baseUrl, userLongitude, userLatitude, limit, offset);
+        String url = buildUrl(baseUrl, userLongitudeDegrees, userLatitudeDegrees, limit, offset);
+
+        Log.d("xcx", url);
 
 
         OkHttpClient client = new OkHttpClient();
@@ -241,12 +348,14 @@ public class BootcampFragment extends Fragment{
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
         String baseUrl = "http://194.87.199.70/api/bootcamps/member";
-        int userLongitude = 0;
-        int userLatitude = 0;
-        int limit = 20;
+        int userLongitude = sharedPreferences.getInt("userLongitude", 0);
+        int userLatitude = sharedPreferences.getInt("userLatitude", 0);
+        double userLongitudeDegrees = userLongitude / 1E6;
+        double userLatitudeDegrees = userLatitude / 1E6;
+        int limit = 100;
         int offset = 0;
 
-        String url = buildUrl(baseUrl, userLongitude, userLatitude, limit, offset);
+        String url = buildUrl(baseUrl, userLongitudeDegrees, userLatitudeDegrees, limit, offset);
 
 
         OkHttpClient client = new OkHttpClient();
@@ -334,14 +443,12 @@ public class BootcampFragment extends Fragment{
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
         String baseUrl = "http://194.87.199.70/api/bootcamps";
-        int userLongitude = 0;
-        int userLatitude = 0;
-        int limit = 20;
-        int offset = 0;
-
-        String url = buildUrl(baseUrl, userLongitude, userLatitude, limit, offset);
-
-
+        int userLongitude = sharedPreferences.getInt("userLongitude", 0);
+        int userLatitude = sharedPreferences.getInt("userLatitude", 0);
+        double userLongitudeDegrees = userLongitude / 1E6;
+        double userLatitudeDegrees = userLatitude / 1E6;
+        String url = buildUrl(baseUrl, userLongitudeDegrees, userLatitudeDegrees, LIMIT, currentPage);
+        Log.d("scroll", url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
@@ -349,35 +456,46 @@ public class BootcampFragment extends Fragment{
                 .addHeader("token", token)
                 .build();
 
+        isFetchingData = true;
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                isFetchingData = false;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                isFetchingData = false;
+
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-                    BootcampList = parseBootcampListFromJson(responseBody);
+                    List<Bootcamp> newBootcampList = parseBootcampListFromJson(responseBody);
 
-                    getActivity().runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            BootcampAdaper adapter = new BootcampAdaper(getContext(), BootcampList, new BootcampAdaper.OnApplyButtonClickListener() {
-                                public void onApplyButtonClick(int bootcampId) {
-                                    openApplyModal(bootcampId);
-                                }
-                            });
-                            BootcampListView.setAdapter(adapter);
-
+                            if (newBootcampList.isEmpty()) {
+                                Toast.makeText(getContext(), "Больше нет данных", Toast.LENGTH_SHORT).show();
+                            } else {
+                                int currentVisiblePosition = BootcampListView.getFirstVisiblePosition();
+                                View v = BootcampListView.getChildAt(0);
+                                int currentTop = (v == null) ? 0 : (v.getTop() - BootcampListView.getPaddingTop());
+                                BootcampList.addAll(newBootcampList);
+                                BootcampAdaper adapter = new BootcampAdaper(getContext(), BootcampList, new BootcampAdaper.OnApplyButtonClickListener() {
+                                    public void onApplyButtonClick(int bootcampId) {
+                                        openApplyModal(bootcampId);
+                                    }
+                                });
+                                BootcampListView.setAdapter(adapter);
+                                BootcampListView.setSelectionFromTop(currentVisiblePosition, currentTop);
+                                currentPage++;
+                            }
                         }
                     });
                 }
             }
         });
-
-
     }
 
     private void openApplyModal(int bootcampId) {

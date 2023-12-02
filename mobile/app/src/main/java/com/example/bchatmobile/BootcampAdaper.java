@@ -27,6 +27,12 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         this.onApplyButtonClickListener = listener;
     }
 
+    public void addBootcamps(List<Bootcamp> newBootcampList) {
+        clear();
+        addAll(newBootcampList);
+        notifyDataSetChanged();
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Bootcamp bootcamp = getItem(position);
