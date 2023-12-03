@@ -28,7 +28,7 @@ from src.utils import (
 bootcamps_router: APIRouter = APIRouter()
 
 
-@bootcamps_router.get("/", response_model=List[BootcampFull])
+@bootcamps_router.get("/", response_model=list[BootcampFull])
 async def get_bootcamps_func(
     user_longitude: float,
     user_latitude: float,
@@ -112,6 +112,7 @@ async def add_bootcamps_func(
 
     bootcamp = {
         "address": bootcamp.address,
+        "visible_address": bootcamp.visible_address,
         "start_time": bootcamp.start_time,
         "end_time": bootcamp.end_time,
         "budget": bootcamp.budget,
@@ -226,35 +227,45 @@ async def add_bootcamp_apply_func(
         current_user.session, current_user.id, bootcamp_id
     )
 
+    bootcamp_members_count = await get_bootcamp_members(current_user.session, bootcamp_id)
+
     if not bootcamp:
         raise HTTPException(
             status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует😢"
         )
+    
+    
 
     if bootcamp_member:
         if bootcamp_member.role == BootcampRolesEnum.admin:
             raise HTTPException(
                 status_code=400,
-                detail=f"Вы уже являетесь админом буткемпа с id {bootcamp_id}😎",
+                detail=f"Вы уже являетесь админом этого буткемпа😎",
             )
 
         if bootcamp_member.role == BootcampRolesEnum.member:
             raise HTTPException(
                 status_code=400,
-                detail=f"Вы уже являетесь участником буткемпа с id {bootcamp_id}🔥",
+                detail=f"Вы уже являетесь участником этого буткемпа🔥",
             )
 
         if bootcamp_member.role == BootcampRolesEnum.wating:
             raise HTTPException(
                 status_code=400,
-                detail=f"Ваша заявка на участие в буткемпе с id {bootcamp_id} на рассмотрении⌛",
+                detail=f"Ваша заявка на участие в буткемпе на рассмотрении⌛",
             )
 
         if bootcamp_member.role == BootcampRolesEnum.rejected:
             raise HTTPException(
                 status_code=400,
-                detail=f"Ваша заявка на участие в буткемпе с id {bootcamp_id} отклонена😭",
-            )
+                detail=f"Ваша заявка на участие в буткемпе отклонена😭",
+            )       
+        
+    if len(bootcamp_members_count) >= bootcamp.members_count:
+        raise HTTPException(
+              status_code=403,
+              detail=f"Буткемп уже переполнен, там жара⚡",
+          )
 
     bootcamp_role = {
         "role": BootcampRolesEnum.wating,
@@ -282,24 +293,24 @@ async def get_bootcamp_applications_func(
 
     if not bootcamp:
         raise HTTPException(
-            status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌"
+            status_code=404, detail=f"Такого буткемпа не существует❌"
         )
 
     if not bootcamp_member_is_admin:
         raise HTTPException(
-            status_code=400, detail=f"Вы не имеете к этому буткемпу никакого отношения"
+            status_code=400, detail=f"Вы не имеете к этому буткемпу никакого отношения🤡"
         )
 
     if bootcamp_member_is_admin.role != BootcampRolesEnum.admin:
         raise HTTPException(
             status_code=403,
-            detail=f"Вы не являетесь админом буткемпа с id {bootcamp_id}💀",
+            detail=f"Вы не являетесь админом этого буткемпа💀",
         )
 
     if not bootcamp_applications:
         raise HTTPException(
             status_code=404,
-            detail=f"Не найдено активных заявок на буткемп с id {bootcamp_id}🙄",
+            detail=f"Не найдено активных заявок на этот буткемп🙄",
         )
 
     return bootcamp_applications
@@ -329,7 +340,7 @@ async def edit_bootcamp_applications_func(
 
     if not bootcamp:
         raise HTTPException(
-            status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌"
+            status_code=404, detail=f"Такого буткемпа не существует❌"
         )
 
     if not bootcamp_member_is_admin:
@@ -340,7 +351,7 @@ async def edit_bootcamp_applications_func(
     if bootcamp_member_is_admin.role != BootcampRolesEnum.admin:
         raise HTTPException(
             status_code=403,
-            detail=f"Вы не являетесь админом буткемпа с id {bootcamp_id}💀",
+            detail=f"Вы не являетесь админом этого буткемпа💀",
         )
 
     if not bootcamp_application:
@@ -378,25 +389,25 @@ async def get_bootcamp_members_func(
 
     if not bootcamp:
         raise HTTPException(
-            status_code=404, detail=f"Буткемпа с id {bootcamp_id} не существует❌"
+            status_code=404, detail=f"Этого буткемпа не существует❌"
         )
 
     if not bootcamp_status:
         raise HTTPException(
             status_code=400,
-            detail=f"Вы не подавали заявку на участие в буткемпе с id {bootcamp_id}",
+            detail=f"Вы не подавали заявку на участие в этом буткемпе💔",
         )
 
     if bootcamp_status.role == BootcampRolesEnum.wating:
         raise HTTPException(
             status_code=403,
-            detail=f"Вы не можете просматривать участников буткемпа, ваша заявка все еще на стадии ожидания",
+            detail=f"Вы не можете просматривать участников буткемпа, ваша заявка все еще на стадии ожидания⏳",
         )
 
     if bootcamp_status.role == BootcampRolesEnum.rejected:
         raise HTTPException(
             status_code=403,
-            detail=f"Вы не можете просматривать участников буткемпа, ваша заявка отклонена",
+            detail=f"Вы не можете просматривать участников буткемпа, ваша заявка отклонена😈",
         )
 
     return bootcamp_members

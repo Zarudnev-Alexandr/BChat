@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from fastapi import HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException
 
 from src.schemas import (
     ChatCreate,
@@ -29,9 +28,17 @@ chats_router: APIRouter = APIRouter()
 
 
 @chats_router.get("/", response_model=list[ChatBase])
-async def get_chats_func(current_user: dict = Depends(get_current_user)):
+async def get_chats_func(current_user: dict = Depends(get_current_user),
+                         limit: int = Query(default=20, ge=1, le=100),
+                         offset: int = Query(default=0, ge=0)):
     """Все чаты пользователя"""
-    chats = await get_chats(current_user.session, current_user.id)
+
+    offset = offset * limit
+    
+    chats = await get_chats(current_user.session, 
+                            current_user.id,
+                            limit,
+                            offset)
     if chats:
         return chats
     else:
@@ -42,14 +49,22 @@ async def get_chats_func(current_user: dict = Depends(get_current_user)):
 
 @chats_router.get("/{chat_id}/users/", response_model=list[UserChatMember])
 async def get_chat_members(
-    chat_id: int, current_user: dict = Depends(get_current_user)
+    chat_id: int, 
+    current_user: dict = Depends(get_current_user),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0)
 ):
     """Все пользователи одного чата"""
+
+    offset = offset * limit
 
     chat = await check_user_for_chat_membership(
         current_user.session, current_user.id, chat_id
     )  # Является ли пользователь участником чата
-    users = await get_chat_users(current_user.session, chat_id)
+    users = await get_chat_users(current_user.session, 
+                                 chat_id,
+                                 limit,
+                                 offset)
 
     if not chat:
         raise HTTPException(status_code=403, detail=USER_NOT_IN_CHAT)

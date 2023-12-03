@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Form, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Form, status, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import StreamingResponse
@@ -67,9 +67,13 @@ async def login(
 
 
 @users_router.get("/", response_model=list[AllUsersProfilesMain])
-async def get_all_users(current_user: dict = Depends(get_current_user)):
+async def get_all_users(limit: int = Query(default=20, ge=1, le=100),
+                        offset: int = Query(default=0, ge=0),
+                        current_user: dict = Depends(get_current_user)):
     """Список всех пользователей, удобен для скролла, мало данных"""
-    users = await get_users(current_user.session)
+
+    offset = offset * limit
+    users = await get_users(current_user.session, limit, offset)
     return users
 
 

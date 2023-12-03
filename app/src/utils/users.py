@@ -1,14 +1,16 @@
-from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from fastapi.responses import StreamingResponse
 
 from src.db import Chat, User, ChatUser
 
 
-async def get_users(session: AsyncSession) -> list[User]:
+async def get_users(session: AsyncSession,
+                    limit: int,
+                    offset: int,) -> list[User]:
     """Get all Users from db"""
-    result = await session.execute(select(User))
+    result = await session.execute(select(User)
+                                   .offset(offset)
+                                   .limit(limit))
     return result.scalars().all()
 
 
