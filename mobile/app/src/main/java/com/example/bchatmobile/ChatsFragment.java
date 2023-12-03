@@ -10,10 +10,12 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,7 +50,14 @@ public class ChatsFragment extends Fragment {
     private String token;
 
     private String bob;
+
+    private int currentVisiblePosition;
+    private int currentTop;
     private int userId;
+
+    private int currentPage = 0; // начальная страница
+    private boolean isLoading = false; // флаг, чтобы избежать одновременных запросов
+
 
 
     @Override
@@ -71,17 +80,42 @@ public class ChatsFragment extends Fragment {
 
         fetchChatList();
 
+            chatsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    // Не требуется в данном случае
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    // Проверяем, что пользователь прокрутил до конца списка
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+                        // Загружаем следующую страницу данных
+                        fetchChatList();
+                    }
+                }
+
+            });
+
+
         return view;
 
     }
 
-    private void fetchChatList() {
+  private void fetchChatList() {
+        // Проверка, чтобы избежать одновременных запросов
+        if (isLoading) {
+            return;
+        }
 
+        isLoading = true;
 
+        Log.d("mymessage", token);
+        Log.d("mymessage", "http://194.87.199.70/api/chats/?limit=20&offset="+ currentPage);
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("http://194.87.199.70/api/chats/")
+                .url("http://194.87.199.70/api/chats/?limit=20&offset="+ currentPage)
                 .get()
                 .addHeader("token", token)
                 .build();
@@ -89,44 +123,46 @@ public class ChatsFragment extends Fragment {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                Log.d("mymessage", "chats not found");
+                isLoading = false;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                isLoading = false;
+                currentPage++;
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-                    if (responseBody.contains("не найдено")) return;
-                    chatList = parseChatListFromJson(responseBody);
+                    Log.d("mymessage", responseBody);
 
+                    if (responseBody.contains("не найдено")) return;
+                    List<ChatObj> newChats = parseChatListFromJson(responseBody);
+
+                    // Сохраняем текущую позицию перед обновлением данных
+                    int firstVisibleItem = chatsListView.getFirstVisiblePosition();
+                    View v = chatsListView.getChildAt(0);
+                    currentTop = (v == null) ? 0 : (v.getTop() - chatsListView.getPaddingTop());
+
+                    // Добавляем новые чаты к существующему списку
+                    chatList.addAll(newChats);
+
+                    // Обновляем UI на главном потоке
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            // Передаем обновленный список адаптеру
                             ChatAdapter adapter = new ChatAdapter(getContext(), chatList);
                             chatsListView.setAdapter(adapter);
+
+                            // Восстанавливаем позицию после обновления данных
+                            chatsListView.setSelectionFromTop(firstVisibleItem, currentTop);
 
                             chatsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                                 @Override
                                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                                    // Handle long-press on a chat item
+                                    // Call the function to show the chat options dialog
                                     showChatOptionsDialog(position);
-                                    return true; // Return true to consume the long-click event
-                                }
-                            });
-
-                            chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                                    ChatObj selectedChat = chatList.get(position);
-                                    int chatid = selectedChat.getId();
-
-
-                                    Intent intent = new Intent(getActivity(), InChatActivity.class);
-                                    intent.putExtra("chatId", chatid);
-                                    intent.putExtra("token", token);
-                                    intent.putExtra("user_id", userId);
-                                    startActivity(intent);
+                                    return true;
                                 }
                             });
                         }
@@ -202,9 +238,9 @@ public class ChatsFragment extends Fragment {
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
                             String responseBody = response.body().string();
-                            Log.d("mymessage", "Successful response: " + responseBody);
+//                            Log.d("mymessage", "Successful response: " + responseBody);
                         } else {
-                            Log.e("mymessage", "Unsuccessful response: " + response.code() + " " + response.message());
+//                            Log.e("mymessage", "Unsuccessful response: " + response.code() + " " + response.message());
                         }
 
                     }
@@ -244,8 +280,6 @@ public class ChatsFragment extends Fragment {
                         String url = "http://194.87.199.70/api/chats/"+ chatId +"/leave/";
 
                         OkHttpClient client = new OkHttpClient();
-
-// Create a request body with JSON data
 
                         Request request = new Request.Builder()
                                 .url(url)
@@ -322,5 +356,9 @@ public class ChatsFragment extends Fragment {
         builder.show();
     }
         }
+
+
+
+
 
 

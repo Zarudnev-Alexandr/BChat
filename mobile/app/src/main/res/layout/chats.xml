@@ -17,18 +17,20 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Button to create a new chat -->
-        <Button
-            android:id="@+id/createChatButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Create New Chat" />
 
         <!-- ListView to display chats -->
         <ListView
             android:id="@+id/chatsListView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"></ListView>
+
+        <Button
+            android:id="@+id/createChatButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create New Chat" />
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
