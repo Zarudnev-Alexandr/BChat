@@ -27,11 +27,6 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         this.onApplyButtonClickListener = listener;
     }
 
-    public void addBootcamps(List<Bootcamp> newBootcampList) {
-        clear();
-        addAll(newBootcampList);
-        notifyDataSetChanged();
-    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -42,7 +37,8 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         }
 
         TextView budgetTextView = convertView.findViewById(R.id.budgetTextView);
-        TextView membersCountTextView = convertView.findViewById(R.id.membersCountTextView);
+        TextView currentMembersCountTextView = convertView.findViewById(R.id.membersCountTextView);
+        TextView membersCountTextView = convertView.findViewById(R.id.maxMembersCountTextView);
         TextView addressTextView = convertView.findViewById(R.id.addressTextView);
         TextView startTimeTextView = convertView.findViewById(R.id.startTimeTextView);
         TextView endTimeTextView = convertView.findViewById(R.id.endTimeTextView);
@@ -51,8 +47,9 @@ public class BootcampAdaper extends ArrayAdapter<Bootcamp> {
         Button applyButton = convertView.findViewById(R.id.applyButton);
 
         budgetTextView.setText("Бюджет: " + bootcamp.getBudget());
-        membersCountTextView.setText("Количество участников: " + bootcamp.getMembers_count());
-        addressTextView.setText("Адрес: " + bootcamp.getAddress());
+        currentMembersCountTextView.setText("Количество участников: " + bootcamp.getCurrent_members_count());
+        membersCountTextView.setText("из " + bootcamp.getMembers_count());
+        addressTextView.setText("Адрес: " + bootcamp.getVAddress());
 
         String dateTimeString = bootcamp.getStart_time();
         String[] dateTimeParts = dateTimeString.split("T");

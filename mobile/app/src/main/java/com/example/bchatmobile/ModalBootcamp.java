@@ -54,6 +54,7 @@ public class ModalBootcamp extends DialogFragment{
     private EditText budgetEditText;
     private EditText membersCountEditText;
     private EditText descriptionEditText;
+    private EditText visiableAdresEditText;
 
 
     @NonNull
@@ -67,6 +68,7 @@ public class ModalBootcamp extends DialogFragment{
         localityEditText = dialog.findViewById(R.id.localityEditText);
         streetEditText = dialog.findViewById(R.id.streetEditText);
         houseEditText = dialog.findViewById(R.id.houseEditText);
+        visiableAdresEditText = dialog.findViewById(R.id.VisibleAddressText);
         startDateEditText = dialog.findViewById(R.id.startDateEditText);
         startDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,12 +169,13 @@ public class ModalBootcamp extends DialogFragment{
         String locality = localityEditText.getText().toString();
         String street = streetEditText.getText().toString();
         String house = houseEditText.getText().toString();
-        if (region.isEmpty() || locality.isEmpty() || street.isEmpty() || house.isEmpty()) {
-            // Одно из полей не заполнено, подсвечиваем его красным
+        String visible_address = visiableAdresEditText.getText().toString();
+        if (region.isEmpty() || locality.isEmpty() || street.isEmpty() || house.isEmpty() || visible_address.isEmpty()) {
             highlightEmptyField(region, regionEditText);
             highlightEmptyField(locality, localityEditText);
             highlightEmptyField(street, streetEditText);
             highlightEmptyField(house, houseEditText);
+            highlightEmptyField(visible_address, visiableAdresEditText);
 
             return;
         }
@@ -252,6 +255,7 @@ public class ModalBootcamp extends DialogFragment{
         JSONObject postData = new JSONObject();
         try {
             postData.put("address", address);
+            postData.put("visible_address", visible_address);
             postData.put("geoposition_longitude", geoposition_longitude);
             postData.put("geoposition_latitude", geoposition_latitude);
             postData.put("start_time", formattedDate1);

@@ -12,14 +12,14 @@
             android:text="Создание буткемпа"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="9dp"/>
 
         <EditText
             android:id="@+id/regionEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/titleTextView"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Область"
             android:minHeight="48dp" />
 
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/regionEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Населенный пункт"
             android:minHeight="48dp" />
 
@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/localityEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Улица"
             android:minHeight="48dp" />
 
@@ -46,16 +46,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/streetEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Дом"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/VisibleAddressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/houseEditText"
+            android:layout_marginBottom="3dp"
+            android:hint="Видимый для других адрес"
             android:minHeight="48dp" />
 
         <EditText
             android:id="@+id/startDateEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/houseEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_below="@+id/VisibleAddressText"
+            android:layout_marginBottom="3dp"
             android:hint="Дата начала"
             android:minHeight="48dp" />
 
@@ -64,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/startDateEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Дата конца"
             android:minHeight="48dp" />
 
@@ -73,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/endDateEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Бюджет"
             android:minHeight="48dp" />
 
@@ -82,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/budgetEditText"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="3dp"
             android:hint="Количество участников"
             android:minHeight="48dp" />
 
@@ -91,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/membersCountEditText"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="7dp"
             android:hint="Описание"
             android:minHeight="48dp" />
 

@@ -356,7 +356,7 @@ public class BootcampFragment extends Fragment {
         int offset = 0;
 
         String url = buildUrl(baseUrl, userLongitudeDegrees, userLatitudeDegrees, limit, offset);
-
+        Log.d("ggg",url);
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -376,7 +376,7 @@ public class BootcampFragment extends Fragment {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
                     BootcampList = parseBootcampListFromJson(responseBody);
-
+                    Log.d("cvb", responseBody);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -396,6 +396,10 @@ public class BootcampFragment extends Fragment {
 
                         }
                     });
+                }
+                else{
+                    String responseBody = response.body().string();
+                    Log.d("cv1", responseBody);
                 }
             }
         });
@@ -526,15 +530,17 @@ public class BootcampFragment extends Fragment {
 
             int id = bootcampObject.has("id") && !bootcampObject.get("id").isJsonNull() ? bootcampObject.get("id").getAsInt() : 0;
             String address = bootcampObject.has("address") && !bootcampObject.get("address").isJsonNull() ? bootcampObject.get("address").getAsString() : "";
+            String visible_address = bootcampObject.has("visible_address") && !bootcampObject.get("visible_address").isJsonNull() ? bootcampObject.get("visible_address").getAsString() : "";
             int geopositionLongitude = bootcampObject.has("geoposition_longitude") && !bootcampObject.get("geoposition_longitude").isJsonNull() ? bootcampObject.get("geoposition_longitude").getAsInt() : 0;
             int geopositionLatitude = bootcampObject.has("geoposition_latitude") && !bootcampObject.get("geoposition_latitude").isJsonNull() ? bootcampObject.get("geoposition_latitude").getAsInt() : 0;
             String startTime = bootcampObject.has("start_time") && !bootcampObject.get("start_time").isJsonNull() ? bootcampObject.get("start_time").getAsString() : "";
             String endTime = bootcampObject.has("end_time") && !bootcampObject.get("end_time").isJsonNull() ? bootcampObject.get("end_time").getAsString() : "";
             int budget = bootcampObject.has("budget") && !bootcampObject.get("budget").isJsonNull() ? bootcampObject.get("budget").getAsInt() : 0;
             int membersCount = bootcampObject.has("members_count") && !bootcampObject.get("members_count").isJsonNull() ? bootcampObject.get("members_count").getAsInt() : 0;
+            int current_members_count = bootcampObject.has("current_members_count") && !bootcampObject.get("current_members_count").isJsonNull() ? bootcampObject.get("current_members_count").getAsInt() : 0;
             String description = bootcampObject.has("description") && !bootcampObject.get("description").isJsonNull() ? bootcampObject.get("description").getAsString() : "";
 
-            Bootcamp bootcamp = new Bootcamp(id, budget, membersCount, address, startTime, endTime, description, geopositionLongitude, geopositionLatitude);
+            Bootcamp bootcamp = new Bootcamp(id, budget, membersCount, current_members_count, address, visible_address, startTime, endTime, description, geopositionLongitude, geopositionLatitude);
             bootcamps.add(bootcamp);
         }
 
