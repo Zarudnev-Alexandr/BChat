@@ -5,7 +5,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+        <Button
+            android:id="@+id/createChatButton"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:background="@drawable/round_button"
+            android:backgroundTint="#664124"
+            android:contentDescription="@string/fab_content_desc"
+            android:text="+"
+            android:textColor="#F8DF02"
+            android:textSize="45dp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -17,13 +35,8 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Button to create a new chat -->
-        <Button
-            android:backgroundTint="#664124"
-            android:textColor="@color/white"
-            android:id="@+id/createChatButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Create New Chat" />
+
+
 
         <!-- ListView to display chats -->
         <ListView
