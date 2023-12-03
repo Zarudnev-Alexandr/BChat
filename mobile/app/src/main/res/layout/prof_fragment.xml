@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
+        android:background="#ECCFA5"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteY="0dp">
 
@@ -117,6 +118,7 @@
 
         <Button
             android:id="@+id/ExitBtn"
+            android:textColor="@color/white"
             android:backgroundTint="#664124"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

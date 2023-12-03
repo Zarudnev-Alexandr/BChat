@@ -8,14 +8,15 @@
     android:layout_height="match_parent">
 
     <Button
-        android:backgroundTint="#4C4945"
         android:id="@+id/addButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        android:backgroundTint="#664124"
         android:text="Устрой тряску"
+        android:textColor="#FFF"
         app:layout_constraintEnd_toStartOf="@+id/AllBootcampButton"
         app:layout_constraintHorizontal_bias="0.42"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -23,14 +24,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:backgroundTint="#4C4945"
         android:id="@+id/AllBootcampButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        android:backgroundTint="#664124"
         android:text="Все буткемпы"
+        android:textColor="#fff"
         app:layout_constraintEnd_toStartOf="@+id/MyBootcampButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -38,14 +40,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:backgroundTint="#4C4945"
         android:id="@+id/MyBootcampButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="5dp"
+        android:backgroundTint="#664124"
         android:text="Мои буткемпы"
+        android:textColor="#FFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -90,12 +93,13 @@
         android:id="@+id/BootcampListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/addButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="16dp"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constraintHorizontal_bias="0.0" />
+        android:background="#ECCFA5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/addButton"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

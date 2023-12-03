@@ -10,6 +10,7 @@
     app:cardBackgroundColor="#E6E6E6">
 
     <LinearLayout
+        android:background="#ECCFA5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -70,7 +71,9 @@
             app:layout_constraintTop_toBottomOf="@+id/endTimeTextView"/>
 
         <Button
+            android:backgroundTint="#664124"
             android:id="@+id/applyButton"
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Подать заявку"/>

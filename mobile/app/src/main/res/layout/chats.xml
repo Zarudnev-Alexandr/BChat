@@ -18,8 +18,8 @@
 
         <!-- Button to create a new chat -->
         <Button
-            android:backgroundTint="#C1790E"
-            android:textColor="@color/black"
+            android:backgroundTint="#664124"
+            android:textColor="@color/white"
             android:id="@+id/createChatButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

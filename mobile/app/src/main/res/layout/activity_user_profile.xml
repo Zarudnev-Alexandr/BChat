@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:background="#EEBF78"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#ECCFA5">
 
         <ImageView
             android:id="@+id/profileImageView"
@@ -20,31 +20,31 @@
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/profileImageView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
             android:text=""
-            android:textSize="20sp"
-            android:layout_marginTop="16dp"/>
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/surnameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/nameTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
             android:text=""
-            android:textSize="16sp"
-            android:layout_marginTop="8dp"/>
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/BrdayTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/nameTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="35dp"
             android:text=""
-            android:textSize="16sp"
-            android:layout_marginTop="35dp"/>
+            android:textSize="16sp" />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
