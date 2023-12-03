@@ -10,10 +10,17 @@ async def get_chat(session: AsyncSession, id: int) -> Chat:
     return result.scalars().first()
 
 
-async def get_chats(session: AsyncSession, user_id: int) -> list[Chat]:
+async def get_chats(session: AsyncSession, 
+                    user_id: int,
+                    limit: int,
+                    offset: int,) -> list[Chat]:
     """Получение всех чатов, в которых состоит пользователь"""
     result = await session.execute(
-        select(Chat).join(ChatUser).where(user_id == ChatUser.user_id)
+        select(Chat)
+        .join(ChatUser)
+        .where(user_id == ChatUser.user_id)
+        .offset(offset)
+        .limit(limit)
     )
     return result.scalars().all()
 
@@ -63,7 +70,10 @@ async def remove_chat(session: AsyncSession, chat_id: int):
     await session.delete(removed_chat)
 
 
-async def get_chat_users(session: AsyncSession, chat_id: int):
+async def get_chat_users(session: AsyncSession, 
+                         chat_id: int,
+                         limit: int,
+                         offset: int,):
     """Получить всех участников чата с информацией об администраторах"""
     result = await session.execute(
         select(
@@ -78,6 +88,8 @@ async def get_chat_users(session: AsyncSession, chat_id: int):
         .join(ChatUser)
         .join(Chat)
         .where(Chat.id == chat_id)
+        .offset(offset)
+        .limit(limit)
     )
     users_data = []
     for user_id, nickname, name, surname, imageURL, is_online, is_admin in result:

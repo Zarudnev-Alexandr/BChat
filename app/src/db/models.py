@@ -92,6 +92,7 @@ class Bootcamp(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     address = Column(String, nullable=False)
+    visible_address = Column(String, nullable=False)
     geoposition_longitude = Column(Float, nullable=False)
     geoposition_latitude = Column(Float, nullable=False)
     start_time = Column(

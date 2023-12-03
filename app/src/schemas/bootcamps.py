@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class BootcampCreate(BaseModel):
     address: str
+    visible_address: str
     start_time: datetime.datetime
     end_time: datetime.datetime
     budget: int
@@ -17,4 +18,5 @@ class BootcampBase(BootcampCreate):
 class BootcampFull(BootcampBase):
     geoposition_longitude: float
     geoposition_latitude: float
+    current_members_count: int
 
