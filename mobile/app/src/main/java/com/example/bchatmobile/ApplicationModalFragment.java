@@ -45,6 +45,7 @@ public class ApplicationModalFragment extends DialogFragment {
     private Button cancelButton;
     private List<BootcampApplication> BootcampApplicationList = new ArrayList<>();
     private ListView BootcampApplicationListView;
+    private int bootcampId;
 
 
     public ApplicationModalFragment() {
@@ -70,7 +71,7 @@ public class ApplicationModalFragment extends DialogFragment {
 
         cancelButton = view.findViewById(R.id.closeApplicationButton);
 
-        int bootcampId = getArguments().getInt(ARG_BOOTCAMP_ID);
+        bootcampId = getArguments().getInt(ARG_BOOTCAMP_ID);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +92,6 @@ public class ApplicationModalFragment extends DialogFragment {
 
         String baseUrl = "http://194.87.199.70/api/bootcamps/";
         String url = baseUrl + bootcampId + "/applications/";
-        Log.d("Bebra1", url);
 
         OkHttpClient client = new OkHttpClient();
 
@@ -206,7 +206,18 @@ public class ApplicationModalFragment extends DialogFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-
+                    if (BootcampApplicationList.size() == 1) {
+                        dismiss();
+                    }
+                    else{
+                        BootcampApplicationList.clear();
+                        new Handler(getActivity().getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                fetchAllApplicationBootcamp(bootcampId);
+                            }
+                        }, 500);
+                    }
                 } else {
                     String responseBody = response.body().string();
                 }
@@ -241,7 +252,18 @@ public class ApplicationModalFragment extends DialogFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-
+                    if (BootcampApplicationList.size() == 1) {
+                        dismiss();
+                    }
+                    else{
+                        BootcampApplicationList.clear();
+                        new Handler(getActivity().getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                fetchAllApplicationBootcamp(bootcampId);
+                            }
+                        }, 500);
+                    }
                 } else {
 
                 }

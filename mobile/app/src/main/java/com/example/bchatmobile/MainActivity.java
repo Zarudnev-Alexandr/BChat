@@ -21,6 +21,7 @@ import org.json.JSONArray;
 
 import com.example.bchatmobile.GetRect;
 
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -28,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
     }
 
