@@ -29,5 +29,11 @@ public class ChatAdapter extends ArrayAdapter<ChatObj> {
 
         return convertView;
     }
+
+    public void updateData(List<ChatObj> newData) {
+        clear();
+        addAll(newData);
+        notifyDataSetChanged();
+    }
 }
 
