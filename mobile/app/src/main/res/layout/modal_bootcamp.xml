@@ -118,6 +118,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:textColor="@color/white"
                     android:layout_weight="1"
                     android:text="OK" />
 
@@ -125,6 +126,7 @@
                     android:backgroundTint="#664124"
                     android:id="@+id/cancelButton"
                     android:layout_width="0dp"
+                    android:textColor="@color/white"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Отмена" />

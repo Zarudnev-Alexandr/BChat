@@ -30,7 +30,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private ImageView profileImageView;
     private TextView nameTextView;
-    private TextView surnameTextView;
     private TextView Brday;
 
     @Override
@@ -41,7 +40,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         profileImageView = findViewById(R.id.profileImageView);
         nameTextView = findViewById(R.id.nameTextView);
-        surnameTextView = findViewById(R.id.surnameTextView);
         Brday = findViewById(R.id.BrdayTextView);
 
         Intent intent = getIntent();
@@ -81,8 +79,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                nameTextView.setText(name);
-                                surnameTextView.setText(surname);
+                                nameTextView.setText(name+" "+surname);
                                 Brday.setText(date_of_birth);
                                 Picasso.get().load(fullUrl).error(R.drawable.image).into(profileImageView);
                             }
