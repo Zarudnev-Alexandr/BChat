@@ -5,7 +5,9 @@ public class Bootcamp {
     private int id;
     private int budget;
     private int members_count;
+    private int current_members_count;
     private String address;
+    private String visible_address;
     private String start_time;
     private String end_time;
     private String description;
@@ -13,12 +15,14 @@ public class Bootcamp {
     private int geoposition_latitude;
 
 
-    public Bootcamp(int id, int budget, int members_count, String address,
-                    String start_time, String end_time, String description,
+    public Bootcamp(int id, int budget, int members_count, int current_members_count, String address,
+                    String visible_address,String start_time, String end_time, String description,
                     int geoposition_longitude, int geoposition_latitude) {
         this.id = id;
         this.budget = budget;
         this.members_count = members_count;
+        this.current_members_count = current_members_count;
+        this.visible_address = visible_address;
         this.address = address;
         this.start_time = start_time;
         this.end_time = end_time;
@@ -51,12 +55,28 @@ public class Bootcamp {
         this.members_count = members_count;
     }
 
+    public int getCurrent_members_count() {
+        return current_members_count;
+    }
+
+    public void getCurrent_members_count(int current_members_count) {
+        this.current_members_count = current_members_count;
+    }
+
     public String getAddress() {
         return address;
     }
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getVAddress() {
+        return visible_address;
+    }
+
+    public void setVAddress(String address) {
+        this.visible_address = visible_address;
     }
 
     public String getStart_time() {

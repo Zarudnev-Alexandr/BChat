@@ -41,7 +41,8 @@ public class MyMemberBootcampAdapter extends ArrayAdapter<Bootcamp> {
         }
 
         TextView budgetTextView = convertView.findViewById(R.id.budgetTextView);
-        TextView membersCountTextView = convertView.findViewById(R.id.membersCountTextView);
+        TextView currentMembersCountTextView = convertView.findViewById(R.id.membersCountTextView);
+        TextView membersCountTextView = convertView.findViewById(R.id.maxMembersCountTextView);
         TextView addressTextView = convertView.findViewById(R.id.addressTextView);
         TextView startTimeTextView = convertView.findViewById(R.id.startTimeTextView);
         TextView endTimeTextView = convertView.findViewById(R.id.endTimeTextView);
@@ -52,7 +53,8 @@ public class MyMemberBootcampAdapter extends ArrayAdapter<Bootcamp> {
 
 
         budgetTextView.setText("Бюджет: " + bootcamp.getBudget());
-        membersCountTextView.setText("Количество участников: " + bootcamp.getMembers_count());
+        currentMembersCountTextView.setText("Количество участников: " + bootcamp.getCurrent_members_count());
+        membersCountTextView.setText("из " + bootcamp.getMembers_count());
         addressTextView.setText("Адрес: " + bootcamp.getAddress());
 
         String dateTimeString = bootcamp.getStart_time();
