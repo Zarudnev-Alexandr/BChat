@@ -110,8 +110,6 @@ public class ChatsFragment extends Fragment {
 
         isLoading = true;
 
-        Log.d("mymessage", token);
-        Log.d("mymessage", "http://194.87.199.70/api/chats/?limit=20&offset="+ currentPage);
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -133,29 +131,32 @@ public class ChatsFragment extends Fragment {
                 currentPage++;
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-                    Log.d("mymessage", responseBody);
 
                     if (responseBody.contains("не найдено")) return;
                     List<ChatObj> newChats = parseChatListFromJson(responseBody);
 
-                    // Сохраняем текущую позицию перед обновлением данных
                     int firstVisibleItem = chatsListView.getFirstVisiblePosition();
                     View v = chatsListView.getChildAt(0);
                     currentTop = (v == null) ? 0 : (v.getTop() - chatsListView.getPaddingTop());
 
-                    // Добавляем новые чаты к существующему списку
                     chatList.addAll(newChats);
 
-                    // Обновляем UI на главном потоке
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // Передаем обновленный список адаптеру
                             ChatAdapter adapter = new ChatAdapter(getContext(), chatList);
                             chatsListView.setAdapter(adapter);
 
                             // Восстанавливаем позицию после обновления данных
                             chatsListView.setSelectionFromTop(firstVisibleItem, currentTop);
+
+                            chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    // Call the function to open the chat activity
+                                    openChatActivity(position);
+                                }
+                            });
 
                             chatsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                                 @Override
@@ -171,6 +172,23 @@ public class ChatsFragment extends Fragment {
             }
         });
     }
+
+    private void openChatActivity(int position) {
+        // Retrieve the chat item from the list based on the position
+        ChatObj selectedChat = chatList.get(position);
+
+        // Assuming you have a ChatActivity class, you need to replace it with the actual class name
+        Intent intent = new Intent(getContext(), InChatActivity.class);
+
+        // Pass necessary data to the ChatActivity
+        intent.putExtra("token", token);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("chatId", selectedChat.getId()); // Assuming you have a method getId() in ChatObj
+
+        // Start the ChatActivity
+        startActivity(intent);
+    }
+
 
     private List<ChatObj> parseChatListFromJson(String json) {
         List<ChatObj> chats = new ArrayList<>();
@@ -238,9 +256,7 @@ public class ChatsFragment extends Fragment {
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
                             String responseBody = response.body().string();
-//                            Log.d("mymessage", "Successful response: " + responseBody);
                         } else {
-//                            Log.e("mymessage", "Unsuccessful response: " + response.code() + " " + response.message());
                         }
 
                     }
@@ -298,9 +314,7 @@ public class ChatsFragment extends Fragment {
                             public void onResponse(Call call, Response response) throws IOException {
                                 if (response.isSuccessful()) {
                                     String responseBody = response.body().string();
-                                    Log.d("mymessage", "Successful response: " + responseBody);
                                 } else {
-                                    Log.e("mymessage", "Unsuccessful response: " + response.code() + " " + response.message());
                                 }
 
                             }
@@ -331,9 +345,7 @@ public class ChatsFragment extends Fragment {
                             public void onResponse(Call call, Response response) throws IOException {
                                 if (response.isSuccessful()) {
                                     String responseBody = response.body().string();
-                                    Log.d("mymessage", "Successful response: " + responseBody);
                                 } else {
-                                    Log.e("mymessage", "Unsuccessful response: " + response.code() + " " + response.message());
                                 }
 
                             }
@@ -344,7 +356,6 @@ public class ChatsFragment extends Fragment {
             }
         });
 
-        // Set up the negative (Cancel) button click listener
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

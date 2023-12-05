@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -60,7 +62,16 @@ public class InChatActivity extends AppCompatActivity {
 
     private AlertDialog alertDialog;
 
+    private Boolean emptyResponse = false;
+
+    private Integer limit = 20;
+
     private List<UserObj> userList;
+
+    private Integer currentPage = 0;
+
+    private boolean isLoading = false; // флаг, чтобы избежать одновременных запросов
+
 
     private Integer userId;
     private String token;
@@ -73,8 +84,6 @@ public class InChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_chat_fragment);
-
-
 
         messagesListView = findViewById(R.id.messagesList);
 
@@ -103,11 +112,38 @@ public class InChatActivity extends AppCompatActivity {
             }
         });
 
-
         getAllChatUsers(chat_id);
 
+        adapter = new MessageAdapter(InChatActivity.this, messageList, userId);
+
+        messagesListView.setAdapter(adapter);
 
         fetchMessages(chat_id);
+        messagesListView.setSelection(limit-1);
+
+        messagesListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // Не требуется в данном случае
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                // Проверяем, что пользователь прокрутил до конца списка
+                if (firstVisibleItem == 0) {
+                    // Загружаем следующую страницу данных
+                    int prev = adapter.getCount();
+                    fetchMessages(chat_id);
+                    if (!emptyResponse){
+                        Log.d("mymessage","set next");
+                        messagesListView.setSelection(limit);
+                    }
+                }
+            }
+
+        });
+
+
     }
 
     private void initializeWebSocket() {
@@ -212,12 +248,10 @@ public class InChatActivity extends AppCompatActivity {
         TextView titleTextView = dialogView.findViewById(R.id.titleTextView);
         titleTextView.setText("Список пользователей в чате");
 
-        Log.d("mymessage", "user List : " + userList);
-
         ListView userListView = dialogView.findViewById(R.id.userListViewSmall);
 
-        UserListAdapter adapter = new UserListAdapter(this, userList);
-        userListView.setAdapter(adapter);
+        UserListAdapter userListAdapter = new UserListAdapter(this, userList);
+        userListView.setAdapter(userListAdapter);
 
         builder.setNegativeButton("Закрыть", null);
 
@@ -340,10 +374,14 @@ public class InChatActivity extends AppCompatActivity {
 
 
     private void fetchMessages(int chatId) {
-        int limit = 100;
-        int offset = 0;
 
-        String url = String.format("http://194.87.199.70/api/messages/get/?chat_id=%d&limit=%d&offset=%d", chatId, limit, offset);
+        if (isLoading) {
+            return;
+        }
+
+        isLoading = true;
+
+        String url = String.format("http://194.87.199.70/api/messages/get/?chat_id="+chatId+"&limit="+limit+"&offset="+ currentPage);
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -356,25 +394,36 @@ public class InChatActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 // Handle failure
+                Log.e("mymessage", "Unsuccessful response");
+                isLoading = false;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                isLoading = false;
+                currentPage++;
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-                    if (responseBody.contains("не найдено")) return;
-                    messageList = parseChatListFromJson(responseBody);
+                    if (responseBody.contains("Не обнаружен")) return;
+                    if ("[]".equals(responseBody)){
+                        emptyResponse = true;
+                        return;
+                    }
+                    Log.d("mymessage", "Successful response: "+ responseBody);
+
+                    // Парсинг нового списка сообщений
+                    List<MessageObj> newMessages = parseChatListFromJson(responseBody);
+                    Collections.reverse(newMessages);
+
+                    // Добавление новых сообщений к существующему списку
+                    messageList.addAll(0, newMessages);
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            List<MessageObj> reversedList = new ArrayList<>(messageList);
-                            Collections.reverse(reversedList);
-                            messageList = reversedList;
-
-                            adapter = new MessageAdapter(InChatActivity.this, messageList, userId);
-                            messagesListView.setAdapter(adapter);
-                            messagesListView.setSelection(adapter.getCount() - 1);
+                            // Отрисовка обновленного списка сообщений
+                            adapter.notifyDataSetChanged();
+//                            messagesListView.setSelection(adapter.getCount() - 1);
                         }
                     });
                 }
@@ -424,8 +473,6 @@ public class InChatActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
-
-                    Log.d("mymessage", "get users body : " + responseBody);
 
                     userList = parseUserListFromJson(responseBody);
 
