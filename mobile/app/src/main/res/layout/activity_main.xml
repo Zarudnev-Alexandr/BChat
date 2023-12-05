@@ -6,40 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-<!--    <Button-->
-<!--        android:id="@+id/sendRequestButton"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Zalupa"-->
-<!--        android:onClick="onSendGetRequestClick"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.498"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintVertical_bias="0.459" />-->
-
-<!--    <Button-->
-<!--        android:id="@+id/button5"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Выйти"-->
-<!--        android:onClick="onExitButtonClick"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.05"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintVertical_bias="0.057" />-->
-
     <RelativeLayout
+        android:background="#EEBF78"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
         <!-- Панель с кнопками внизу экрана -->
         <LinearLayout
+            android:background="#ECCFA5"
             android:id="@+id/button_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,50 +22,56 @@
             android:layout_alignParentBottom="true"
             android:gravity="center">
 
-            <Button
+            <ImageView
                 android:id="@+id/button1"
+
                 android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_profiler"
                 android:onClick="onProfBtnClick"
-                android:text="Профиль" />
+                android:contentDescription="NULL"/>
 
-            <Button
+            <ImageView
                 android:id="@+id/button2"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_width="90dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:contentDescription="NULL"
                 android:onClick="onChatsBtnClick"
-                android:text="Чаты" />
+                android:src="@drawable/ic_chats" />
 
-            <Button
+            <ImageView
                 android:id="@+id/button3"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_width="90dp"
+                android:layout_height="58dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:onClick="onAllUsersBtnClick"
-                android:text="Пользователи" />
+                android:src="@drawable/ic_users"
+                android:contentDescription="NULL"/>
 
-            <Button
+            <ImageView
                 android:id="@+id/button4"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
+                android:layout_width="70dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:onClick="onBootcampBtnClick"
-                android:text="4" />
+                android:src="@drawable/ic_bootcamps"
+                android:contentDescription="NULL"/>
 
         </LinearLayout>
 
 
         <FrameLayout
+            android:background="#ECCFA5"
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

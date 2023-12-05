@@ -80,29 +80,29 @@ public class ChatsFragment extends Fragment {
 
         fetchChatList();
 
-            chatsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    // Не требуется в данном случае
-                }
+        chatsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // Не требуется в данном случае
+            }
 
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    // Проверяем, что пользователь прокрутил до конца списка
-                    if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
-                        // Загружаем следующую страницу данных
-                        fetchChatList();
-                    }
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                // Проверяем, что пользователь прокрутил до конца списка
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+                    // Загружаем следующую страницу данных
+                    fetchChatList();
                 }
+            }
 
-            });
+        });
 
 
         return view;
 
     }
 
-  private void fetchChatList() {
+    private void fetchChatList() {
         // Проверка, чтобы избежать одновременных запросов
         if (isLoading) {
             return;
@@ -264,16 +264,16 @@ public class ChatsFragment extends Fragment {
             }});
 
         //Set up the negative (Cancel) button click listener
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Cancel button clicked, do nothing
-                    }
-                });
-
-                // Show the dialog
-                builder.show();
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Cancel button clicked, do nothing
             }
+        });
+
+        // Show the dialog
+        builder.show();
+    }
 
 
     private void showChatOptionsDialog(int position) {
@@ -322,13 +322,13 @@ public class ChatsFragment extends Fragment {
 
                         break;
                     case 1:
-                         url = "http://194.87.199.70/api/chats/"+ chatId +"/delete/";
+                        url = "http://194.87.199.70/api/chats/"+ chatId +"/delete/";
 
-                         client = new OkHttpClient();
+                        client = new OkHttpClient();
 
                         // Create a request body with JSON data
 
-                         request = new Request.Builder()
+                        request = new Request.Builder()
                                 .url(url)
                                 .delete()
                                 .addHeader("token", token)
@@ -366,7 +366,7 @@ public class ChatsFragment extends Fragment {
         // Show the dialog
         builder.show();
     }
-        }
+}
 
 
 

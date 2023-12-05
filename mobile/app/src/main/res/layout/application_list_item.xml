@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    android:background="#EEBF78"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -8,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Текст: "
+        android:textColor="#000000"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -17,15 +20,19 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textTextView"
         android:text="Роль: "
-        android:textSize="14sp" />
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/acceptButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
         android:layout_below="@id/roleTextView"
-        android:text="Принять"/>
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="#664124"
+        android:text="Принять"
+        android:textColor="#FFF" />
 
     <Button
         android:id="@+id/rejectButton"
@@ -33,6 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/roleTextView"
         android:layout_toRightOf="@id/acceptButton"
-        android:text="Отклонить"/>
+        android:backgroundTint="#664124"
+        android:text="Отклонить"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

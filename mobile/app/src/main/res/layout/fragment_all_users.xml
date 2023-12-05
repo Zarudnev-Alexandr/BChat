@@ -11,6 +11,7 @@
 
         <ListView
             android:id="@+id/userListView"
+            android:background="#ECCFA5"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

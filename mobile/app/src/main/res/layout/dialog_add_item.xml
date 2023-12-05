@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#ECCFA5">
 
     <EditText
         android:id="@+id/editTextItemName"
@@ -18,6 +19,8 @@
         android:text="Пользователь админ?" />
 
     <Button
+        android:textColor="@color/white"
+        android:backgroundTint="#664124"
         android:id="@+id/buttonAddItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
